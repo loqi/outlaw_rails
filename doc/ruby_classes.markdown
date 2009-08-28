@@ -205,6 +205,7 @@ Example:
 	  |That is all.
 	eos
 	# s == "This is a text\n  of the emergent\n  bardoc system.\nThat is all."
+	# The terminating symbol (eos) line may also be indented with s = <<-eos.bardoc
 
 ### Class methods
 

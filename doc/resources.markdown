@@ -521,9 +521,9 @@ By default, this option is blank.
 Specify characters to be inserted into the names of non-classic routes which reference an
 individual member resource. That is, the routes referenced by mnemonics `:member`, `:show`,
 `:edit`, `:update`, and `:destroy`, will have this string embedded into their route names.
-While this is actually an infix, not a suffix, it's called a suffix as a reminder that if
-you want to set it off from the rest of the name with an underscore, it goes on the left.
-By default, this option is "`_id`".
+While this suffix may sometimes be embedded in front of other suffixes, if you want an
+underscore to set it off from the rest of a name, that underscore probably belongs on the
+left. By default, this option is "`_id`".
 
 	map.outlaw_resources :catalog, :id_name_suffix=>'_item'
 	# Makes routes with names like "catalog_item_destroy" instead of "catalog_id_destroy"
@@ -723,10 +723,15 @@ This syntax is not just a convenience. This would be impossible without it...
 This syntax may also be passed to the `:has_one` and `:has_many` options. When doing so,
 there may be times when it's ambiguous whether you mean "two resource names which are to
 be auto-pluralized by the inflector" or, "the singular and plural form of a single resource
-name". This ambiguity only arrises when there are two elements of an array. In cases
-like this, it's best to wrap the array inside another array, like so,
+name". This ambiguity only arrises when there are two elements of an array. In such cases,
+the two-element array is assumed to be two independent resources.
 
 	map.outlaw_resources :account, :provide=>:all, :has_many=>[:debit,:credit]
+
+If you meant two forms of the same resource name, you'll need to wrap the array within
+another array. Such a structure means "an array of resources containing a single resource,
+which is described by both the singular and plural form of its name." Like so:
+
 	map.outlaw_resources :user, :provide=>:all, :has_many=>[[:persona,:personae]]
 
 Route Mnemonics
@@ -821,8 +826,8 @@ A few elemental mnemonics:
 	collection_f            thing_root_f          /thing.html
 	index_f                 thing_index_f         /thing/index.html
 	show_nof                thing_id_show         /thing/12/show
-	classic_collection_nof  thing                 /things/12
-	classic_collection_f    formatted_thing       /things/12.html
+	classic_member_nof      thing                 /things/12
+	classic_member_f        formatted_thing       /things/12.html
 
 Putting this all together, this code...
 
