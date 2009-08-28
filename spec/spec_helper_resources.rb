@@ -101,84 +101,45 @@ class RouteTester
   #       with the appropriate :provide option, and otherwise default options.
   # "s_" = "singleton resource, as in outlaw_resource() as opposed to outlaw_resources()
   a_sep = ActionController::Base.resource_action_separator
-  @@classic_index      = { :name=>                 'plural' ,:verb=>'GET'   ,:path=>"/plural"                             ,:action=>'index'  ,:controller=>'singular' }.freeze
-  @@classic_index_f    = { :name=>       'formatted_plural' ,:verb=>'GET'   ,:path=>"/plural.:format"                     ,:action=>'index'  ,:controller=>'singular' }.freeze
-  @@classic_create     = { :name=>                       '' ,:verb=>'POST'  ,:path=>"/plural"                             ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@classic_create_f   = { :name=>                       '' ,:verb=>'POST'  ,:path=>"/plural.:format"                     ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@classic_new        = { :name=>           'new_singular' ,:verb=>'GET'   ,:path=>"/plural/new"                         ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@classic_new_f      = { :name=> 'formatted_new_singular' ,:verb=>'GET'   ,:path=>"/plural/new.:format"                 ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@classic_show       = { :name=>               'singular' ,:verb=>'GET'   ,:path=>"/plural/:id"                         ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@classic_show_f     = { :name=>     'formatted_singular' ,:verb=>'GET'   ,:path=>"/plural/:id.:format"                 ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@classic_update     = { :name=>                       '' ,:verb=>'PUT'   ,:path=>"/plural/:id"                         ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@classic_update_f   = { :name=>                       '' ,:verb=>'PUT'   ,:path=>"/plural/:id.:format"                 ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@classic_destroy    = { :name=>                       '' ,:verb=>'DELETE',:path=>"/plural/:id"                         ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@classic_destroy_f  = { :name=>                       '' ,:verb=>'DELETE',:path=>"/plural/:id.:format"                 ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@classic_edit       = { :name=>          'edit_singular' ,:verb=>'GET'   ,:path=>"/plural/:id#{a_sep}edit"             ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@classic_edit_f     = { :name=>'formatted_edit_singular' ,:verb=>'GET'   ,:path=>"/plural/:id#{a_sep}edit.:format"     ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@restful_index      = { :name=>'singular_root'           ,:verb=>'GET'   ,:path=>"/singular"                           ,:action=>'index'  ,:controller=>'singular' }.freeze
-  @@restful_index_f    = { :name=>'singular_root_f'         ,:verb=>'GET'   ,:path=>"/singular.:format"                   ,:action=>'index'  ,:controller=>'singular' }.freeze
-  @@restful_create     = { :name=>''                        ,:verb=>'POST'  ,:path=>"/singular"                           ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@restful_create_f   = { :name=>''                        ,:verb=>'POST'  ,:path=>"/singular.:format"                   ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@restful_new        = { :name=>'singular_new'            ,:verb=>'GET'   ,:path=>"/singular/new"                       ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@restful_new_f      = { :name=>'singular_new_f'          ,:verb=>'GET'   ,:path=>"/singular/new.:format"               ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@restful_show       = { :name=>'singular_id'             ,:verb=>'GET'   ,:path=>"/singular/:id"                       ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@restful_show_f     = { :name=>'singular_id_f'           ,:verb=>'GET'   ,:path=>"/singular/:id.:format"               ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@restful_update     = { :name=>''                        ,:verb=>'PUT'   ,:path=>"/singular/:id"                       ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@restful_update_f   = { :name=>''                        ,:verb=>'PUT'   ,:path=>"/singular/:id.:format"               ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@restful_destroy    = { :name=>''                        ,:verb=>'DELETE',:path=>"/singular/:id"                       ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@restful_destroy_f  = { :name=>''                        ,:verb=>'DELETE',:path=>"/singular/:id.:format"               ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@restful_edit       = { :name=>'singular_id_edit'        ,:verb=>'GET'   ,:path=>"/singular/:id#{a_sep}edit"           ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@restful_edit_f     = { :name=>'singular_id_edit_f'      ,:verb=>'GET'   ,:path=>"/singular/:id#{a_sep}edit.:format"   ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@pretty_index       = { :name=>'singular_index'          ,:verb=>'GET'   ,:path=>"/singular/index"                     ,:action=>'index'  ,:controller=>'singular' }.freeze
-  @@pretty_index_f     = { :name=>'singular_index_f'        ,:verb=>'GET'   ,:path=>"/singular/index.:format"             ,:action=>'index'  ,:controller=>'singular' }.freeze
-  @@pretty_create      = { :name=>'singular_create'         ,:verb=>'POST'  ,:path=>"/singular/create"                    ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@pretty_create_f    = { :name=>'singular_create_f'       ,:verb=>'POST'  ,:path=>"/singular/create.:format"            ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@pretty_new         = @@restful_new    # When two route are identical, classic trumps non-classic and restful trumps pretty.
-  @@pretty_new_f       = @@restful_new_f
-  @@pretty_show        = { :name=>'singular_id_show'        ,:verb=>'GET'   ,:path=>"/singular/:id#{a_sep}show"           ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@pretty_show_f      = { :name=>'singular_id_show_f'      ,:verb=>'GET'   ,:path=>"/singular/:id#{a_sep}show.:format"   ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@pretty_update      = { :name=>'singular_id_update'      ,:verb=>'PUT'   ,:path=>"/singular/:id#{a_sep}update"         ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@pretty_update_f    = { :name=>'singular_id_update_f'    ,:verb=>'PUT'   ,:path=>"/singular/:id#{a_sep}update.:format" ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@pretty_destroy     = { :name=>'singular_id_destroy'     ,:verb=>'DELETE',:path=>"/singular/:id#{a_sep}destroy"        ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@pretty_destroy_f   = { :name=>'singular_id_destroy_f'   ,:verb=>'DELETE',:path=>"/singular/:id#{a_sep}destroy.:format",:action=>'destroy',:controller=>'singular' }.freeze
-  @@pretty_edit        = @@restful_edit
-  @@pretty_edit_f      = @@restful_edit_f
-  @@s_classic_new      = { :name=>           'new_singular' ,:verb=>'GET'   ,:path=>"/singular/new"                       ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@s_classic_new_f    = { :name=> 'formatted_new_singular' ,:verb=>'GET'   ,:path=>"/singular/new.:format"               ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@s_classic_show     = { :name=>               'singular' ,:verb=>'GET'   ,:path=>"/singular"                           ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@s_classic_show_f   = { :name=>     'formatted_singular' ,:verb=>'GET'   ,:path=>"/singular.:format"                   ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@s_classic_create   = { :name=>                       '' ,:verb=>'POST'  ,:path=>"/singular"                           ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@s_classic_create_f = { :name=>                       '' ,:verb=>'POST'  ,:path=>"/singular.:format"                   ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@s_classic_update   = { :name=>                       '' ,:verb=>'PUT'   ,:path=>"/singular"                           ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@s_classic_update_f = { :name=>                       '' ,:verb=>'PUT'   ,:path=>"/singular.:format"                   ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@s_classic_destroy  = { :name=>                       '' ,:verb=>'DELETE',:path=>"/singular"                           ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@s_classic_destroy_f= { :name=>                       '' ,:verb=>'DELETE',:path=>"/singular.:format"                   ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@s_classic_edit     = { :name=>          'edit_singular' ,:verb=>'GET'   ,:path=>"/singular/edit"                      ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@s_classic_edit_f   = { :name=>'formatted_edit_singular' ,:verb=>'GET'   ,:path=>"/singular/edit.:format"              ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@s_restful_new      = { :name=>'singular_new'            ,:verb=>'GET'   ,:path=>"/singular/new"                       ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@s_restful_new_f    = { :name=>'singular_new_f'          ,:verb=>'GET'   ,:path=>"/singular/new.:format"               ,:action=>'new'    ,:controller=>'singular' }.freeze
-  @@s_restful_show     = { :name=>'singular_root'           ,:verb=>'GET'   ,:path=>"/singular"                           ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@s_restful_show_f   = { :name=>'singular_root_f'         ,:verb=>'GET'   ,:path=>"/singular.:format"                   ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@s_restful_create   = @@s_classic_create
-  @@s_restful_create_f = @@s_classic_create_f
-  @@s_restful_update   = @@s_classic_update
-  @@s_restful_update_f = @@s_classic_update_f
-  @@s_restful_destroy  = @@s_classic_destroy
-  @@s_restful_destroy_f= @@s_classic_destroy_f
-  @@s_restful_edit     = { :name=>'singular_edit'           ,:verb=>'GET'   ,:path=>"/singular/edit"                      ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@s_restful_edit_f   = { :name=>'singular_edit_f'         ,:verb=>'GET'   ,:path=>"/singular/edit.:format"              ,:action=>'edit'   ,:controller=>'singular' }.freeze
-  @@s_pretty_new       = @@s_restful_new
-  @@s_pretty_new_f     = @@s_restful_new_f
-  @@s_pretty_show      = { :name=>'singular_show'           ,:verb=>'GET'   ,:path=>"/singular/show"                      ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@s_pretty_show_f    = { :name=>'singular_show_f'         ,:verb=>'GET'   ,:path=>"/singular/show.:format"              ,:action=>'show'   ,:controller=>'singular' }.freeze
-  @@s_pretty_create    = { :name=>'singular_create'         ,:verb=>'POST'  ,:path=>"/singular/create"                    ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@s_pretty_create_f  = { :name=>'singular_create_f'       ,:verb=>'POST'  ,:path=>"/singular/create.:format"            ,:action=>'create' ,:controller=>'singular' }.freeze
-  @@s_pretty_update    = { :name=>'singular_update'         ,:verb=>'PUT'   ,:path=>"/singular/update"                    ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@s_pretty_update_f  = { :name=>'singular_update_f'       ,:verb=>'PUT'   ,:path=>"/singular/update.:format"            ,:action=>'update' ,:controller=>'singular' }.freeze
-  @@s_pretty_destroy   = { :name=>'singular_destroy'        ,:verb=>'DELETE',:path=>"/singular/destroy"                   ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@s_pretty_destroy_f = { :name=>'singular_destroy_f'      ,:verb=>'DELETE',:path=>"/singular/destroy.:format"           ,:action=>'destroy',:controller=>'singular' }.freeze
-  @@s_pretty_edit      = @@s_restful_edit
-  @@s_pretty_edit_f    = @@s_restful_edit_f
+  @@classic_index    = { :name=>            'plural' ,:verb=>'GET'   ,:path=>"/plural(.:format)"                      ,:action=>'index'  ,:controller=>'singular' }.freeze
+  @@classic_create   = { :name=>                  '' ,:verb=>'POST'  ,:path=>"/plural(.:format)"                      ,:action=>'create' ,:controller=>'singular' }.freeze
+  @@classic_new      = { :name=>      'new_singular' ,:verb=>'GET'   ,:path=>"/plural/new(.:format)"                  ,:action=>'new'    ,:controller=>'singular' }.freeze
+  @@classic_show     = { :name=>          'singular' ,:verb=>'GET'   ,:path=>"/plural/:id(.:format)"                  ,:action=>'show'   ,:controller=>'singular' }.freeze
+  @@classic_update   = { :name=>                  '' ,:verb=>'PUT'   ,:path=>"/plural/:id(.:format)"                  ,:action=>'update' ,:controller=>'singular' }.freeze
+  @@classic_destroy  = { :name=>                  '' ,:verb=>'DELETE',:path=>"/plural/:id(.:format)"                  ,:action=>'destroy',:controller=>'singular' }.freeze
+  @@classic_edit     = { :name=>     'edit_singular' ,:verb=>'GET'   ,:path=>"/plural/:id#{a_sep}edit(.:format)"      ,:action=>'edit'   ,:controller=>'singular' }.freeze
+  @@restful_index    = { :name=>'singular_root'      ,:verb=>'GET'   ,:path=>"/singular(.:format)"                    ,:action=>'index'  ,:controller=>'singular' }.freeze
+  @@restful_create   = { :name=>''                   ,:verb=>'POST'  ,:path=>"/singular(.:format)"                    ,:action=>'create' ,:controller=>'singular' }.freeze
+  @@restful_new      = { :name=>'singular_new'       ,:verb=>'GET'   ,:path=>"/singular/new(.:format)"                ,:action=>'new'    ,:controller=>'singular' }.freeze
+  @@restful_show     = { :name=>'singular_id'        ,:verb=>'GET'   ,:path=>"/singular/:id(.:format)"                ,:action=>'show'   ,:controller=>'singular' }.freeze
+  @@restful_update   = { :name=>''                   ,:verb=>'PUT'   ,:path=>"/singular/:id(.:format)"                ,:action=>'update' ,:controller=>'singular' }.freeze
+  @@restful_destroy  = { :name=>''                   ,:verb=>'DELETE',:path=>"/singular/:id(.:format)"                ,:action=>'destroy',:controller=>'singular' }.freeze
+  @@restful_edit     = { :name=>'singular_id_edit'   ,:verb=>'GET'   ,:path=>"/singular/:id#{a_sep}edit(.:format)"    ,:action=>'edit'   ,:controller=>'singular' }.freeze
+  @@pretty_index     = { :name=>'singular_index'     ,:verb=>'GET'   ,:path=>"/singular/index(.:format)"              ,:action=>'index'  ,:controller=>'singular' }.freeze
+  @@pretty_create    = { :name=>'singular_create'    ,:verb=>'POST'  ,:path=>"/singular/create(.:format)"             ,:action=>'create' ,:controller=>'singular' }.freeze
+  @@pretty_new       = @@restful_new # When two route are identical, classic trumps non-classic and restful trumps pretty.
+  @@pretty_show      = { :name=>'singular_id_show'   ,:verb=>'GET'   ,:path=>"/singular/:id#{a_sep}show(.:format)"    ,:action=>'show'   ,:controller=>'singular' }.freeze
+  @@pretty_update    = { :name=>'singular_id_update' ,:verb=>'PUT'   ,:path=>"/singular/:id#{a_sep}update(.:format)"  ,:action=>'update' ,:controller=>'singular' }.freeze
+  @@pretty_destroy   = { :name=>'singular_id_destroy',:verb=>'DELETE',:path=>"/singular/:id#{a_sep}destroy(.:format)" ,:action=>'destroy',:controller=>'singular' }.freeze
+  @@pretty_edit      = @@restful_edit
+  @@s_classic_new    = { :name=>      'new_singular' ,:verb=>'GET'   ,:path=>"/singular/new(.:format)"                ,:action=>'new'    ,:controller=>'singular' }.freeze
+  @@s_classic_show   = { :name=>          'singular' ,:verb=>'GET'   ,:path=>"/singular(.:format)"                    ,:action=>'show'   ,:controller=>'singular' }.freeze
+  @@s_classic_create = { :name=>                  '' ,:verb=>'POST'  ,:path=>"/singular(.:format)"                    ,:action=>'create' ,:controller=>'singular' }.freeze
+  @@s_classic_update = { :name=>                  '' ,:verb=>'PUT'   ,:path=>"/singular(.:format)"                    ,:action=>'update' ,:controller=>'singular' }.freeze
+  @@s_classic_destroy= { :name=>                  '' ,:verb=>'DELETE',:path=>"/singular(.:format)"                    ,:action=>'destroy',:controller=>'singular' }.freeze
+  @@s_classic_edit   = { :name=>     'edit_singular' ,:verb=>'GET'   ,:path=>"/singular/edit(.:format)"               ,:action=>'edit'   ,:controller=>'singular' }.freeze
+  @@s_restful_new    = { :name=>'singular_new'       ,:verb=>'GET'   ,:path=>"/singular/new(.:format)"                ,:action=>'new'    ,:controller=>'singular' }.freeze
+  @@s_restful_show   = { :name=>'singular_root'      ,:verb=>'GET'   ,:path=>"/singular(.:format)"                    ,:action=>'show'   ,:controller=>'singular' }.freeze
+  @@s_restful_create = @@s_classic_create
+  @@s_restful_update = @@s_classic_update
+  @@s_restful_destroy= @@s_classic_destroy
+  @@s_restful_edit   = { :name=>'singular_edit'      ,:verb=>'GET'   ,:path=>"/singular/edit(.:format)"               ,:action=>'edit'   ,:controller=>'singular' }.freeze
+  @@s_pretty_new     = @@s_restful_new
+  @@s_pretty_show    = { :name=>'singular_show'      ,:verb=>'GET'   ,:path=>"/singular/show(.:format)"               ,:action=>'show'   ,:controller=>'singular' }.freeze
+  @@s_pretty_create  = { :name=>'singular_create'    ,:verb=>'POST'  ,:path=>"/singular/create(.:format)"             ,:action=>'create' ,:controller=>'singular' }.freeze
+  @@s_pretty_update  = { :name=>'singular_update'    ,:verb=>'PUT'   ,:path=>"/singular/update(.:format)"             ,:action=>'update' ,:controller=>'singular' }.freeze
+  @@s_pretty_destroy = { :name=>'singular_destroy'   ,:verb=>'DELETE',:path=>"/singular/destroy(.:format)"            ,:action=>'destroy',:controller=>'singular' }.freeze
+  @@s_pretty_edit    = @@s_restful_edit
 
   # These class methods return a hash which describes an individual route.
   def self.classic_index()     @@classic_index     ; end
@@ -220,73 +181,24 @@ class RouteTester
   def self.s_pretty_update()   @@s_pretty_update   ; end
   def self.s_pretty_destroy()  @@s_pretty_destroy  ; end
   def self.s_pretty_edit()     @@s_pretty_edit     ; end
-  def self.classic_index_f()     @@classic_index_f     ; end
-  def self.classic_create_f()    @@classic_create_f    ; end
-  def self.classic_new_f()       @@classic_new_f       ; end
-  def self.classic_show_f()      @@classic_show_f      ; end
-  def self.classic_update_f()    @@classic_update_f    ; end
-  def self.classic_destroy_f()   @@classic_destroy_f   ; end
-  def self.classic_edit_f()      @@classic_edit_f      ; end
-  def self.restful_index_f()     @@restful_index_f     ; end
-  def self.restful_create_f()    @@restful_create_f    ; end
-  def self.restful_new_f()       @@restful_new_f       ; end
-  def self.restful_show_f()      @@restful_show_f      ; end
-  def self.restful_update_f()    @@restful_update_f    ; end
-  def self.restful_destroy_f()   @@restful_destroy_f   ; end
-  def self.restful_edit_f()      @@restful_edit_f      ; end
-  def self.pretty_index_f()      @@pretty_index_f      ; end
-  def self.pretty_new_f()        @@pretty_new_f        ; end
-  def self.pretty_edit_f()       @@pretty_edit_f       ; end
-  def self.pretty_create_f()     @@pretty_create_f     ; end
-  def self.pretty_show_f()       @@pretty_show_f       ; end
-  def self.pretty_update_f()     @@pretty_update_f     ; end
-  def self.pretty_destroy_f()    @@pretty_destroy_f    ; end
-  def self.s_classic_new_f()     @@s_classic_new_f     ; end
-  def self.s_classic_show_f()    @@s_classic_show_f    ; end
-  def self.s_classic_create_f()  @@s_classic_create_f  ; end
-  def self.s_classic_update_f()  @@s_classic_update_f  ; end
-  def self.s_classic_destroy_f() @@s_classic_destroy_f ; end
-  def self.s_classic_edit_f()    @@s_classic_edit_f    ; end
-  def self.s_restful_new_f()     @@s_restful_new_f     ; end
-  def self.s_restful_show_f()    @@s_restful_show_f    ; end
-  def self.s_restful_create_f()  @@s_restful_create_f  ; end
-  def self.s_restful_update_f()  @@s_restful_update_f  ; end
-  def self.s_restful_destroy_f() @@s_restful_destroy_f ; end
-  def self.s_restful_edit_f()    @@s_restful_edit_f    ; end
-  def self.s_pretty_new_f()      @@s_pretty_new_f      ; end
-  def self.s_pretty_show_f()     @@s_pretty_show_f     ; end
-  def self.s_pretty_create_f()   @@s_pretty_create_f   ; end
-  def self.s_pretty_update_f()   @@s_pretty_update_f   ; end
-  def self.s_pretty_destroy_f()  @@s_pretty_destroy_f  ; end
-  def self.s_pretty_edit_f()     @@s_pretty_edit_f     ; end
 
   # Build some useful arrays which model various sets of route descriptors.
   # If these tests are failing due to re-arranged sequence, these arrays may be safely
   # re-sequenced to match any generated order, provided you're convinced it doesn't break anything
   # in the routing priorities. That is, make these arrays match the generation sequence, but be
   # sure the upper-priority routes can't short-circuit the lower ones.
-  @@classic_route_ar = [ @@classic_index, @@classic_index_f, @@classic_create, @@classic_create_f, @@classic_new, @@classic_new_f,
-    @@classic_show, @@classic_show_f, @@classic_update, @@classic_update_f, @@classic_destroy, @@classic_destroy_f, @@classic_edit, @@classic_edit_f ].freeze
-  @@s_classic_route_ar = [ @@s_classic_new, @@s_classic_new_f, @@s_classic_show, @@s_classic_show_f, @@s_classic_create, @@s_classic_create_f,
-   @@s_classic_update, @@s_classic_update_f, @@s_classic_destroy, @@s_classic_destroy_f, @@s_classic_edit, @@s_classic_edit_f ].freeze
-  @@restful_route_ar = [ @@restful_index, @@restful_index_f, @@restful_create, @@restful_create_f, @@restful_new, @@restful_new_f,
-    @@restful_show, @@restful_show_f, @@restful_update, @@restful_update_f, @@restful_destroy, @@restful_destroy_f, @@restful_edit, @@restful_edit_f ].freeze
-  @@s_restful_route_ar =[ @@s_restful_new, @@s_restful_new_f, @@s_restful_show, @@s_restful_show_f, @@s_restful_create, @@s_restful_create_f,
-    @@s_restful_update, @@s_restful_update_f, @@s_restful_destroy, @@s_restful_destroy_f, @@s_restful_edit, @@s_restful_edit_f ].freeze
-  @@pretty_route_ar  = [ @@pretty_index, @@pretty_index_f, @@pretty_new, @@pretty_new_f, @@pretty_create, @@pretty_create_f,
-    @@pretty_show, @@pretty_show_f, @@restful_edit, @@restful_edit_f, @@pretty_update, @@pretty_update_f, @@pretty_destroy, @@pretty_destroy_f ].freeze
-  @@s_pretty_route_ar = [ @@s_pretty_new, @@s_pretty_new_f, @@s_pretty_create, @@s_pretty_create_f, @@s_pretty_show, @@s_pretty_show_f,
-    @@s_pretty_edit, @@s_pretty_edit_f, @@s_pretty_update, @@s_pretty_update_f, @@s_pretty_destroy, @@s_pretty_destroy_f ].freeze
-  @@default_route_ar = [ @@restful_index, @@restful_index_f, @@restful_create, @@restful_create_f, @@pretty_index, @@pretty_index_f, @@restful_new, @@restful_new_f,
-    @@restful_show, @@restful_show_f, @@restful_update, @@restful_update_f, @@restful_destroy, @@restful_destroy_f, @@restful_edit, @@restful_edit_f ].freeze
-  @@s_default_route_ar = [ @@s_restful_new, @@s_restful_new_f, @@s_restful_show, @@s_restful_show_f, @@s_restful_create, @@s_restful_create_f,
-    @@s_restful_update, @@s_restful_update_f, @@s_restful_destroy, @@s_restful_destroy_f, @@s_restful_edit, @@s_restful_edit_f ].freeze
-  @@pretty_plus_restful_route_ar = [ @@restful_index, @@restful_index_f, @@restful_create, @@restful_create_f, @@pretty_index, @@pretty_index_f, @@restful_new,
-    @@restful_new_f, @@pretty_create, @@pretty_create_f, @@restful_show, @@restful_show_f, @@restful_update, @@restful_update_f, @@restful_destroy, @@restful_destroy_f,
-    @@pretty_show, @@pretty_show_f, @@pretty_edit, @@pretty_edit_f, @@pretty_update, @@pretty_update_f, @@pretty_destroy, @@pretty_destroy_f ].freeze
-  @@s_pretty_plus_restful_route_ar = [ @@s_restful_new, @@s_restful_new_f, @@s_pretty_create, @@s_pretty_create_f, @@s_restful_show, @@s_restful_show_f,
-    @@s_restful_create, @@s_restful_create_f, @@s_restful_update, @@s_restful_update_f, @@s_restful_destroy, @@s_restful_destroy_f, @@s_pretty_show,
-    @@s_pretty_show_f, @@s_pretty_edit, @@s_pretty_edit_f, @@s_pretty_update, @@s_pretty_update_f, @@s_pretty_destroy, @@s_pretty_destroy_f ].freeze
+  @@classic_route_ar = [ @@classic_index, @@classic_create, @@classic_new, @@classic_show, @@classic_update, @@classic_destroy, @@classic_edit ].freeze
+  @@s_classic_route_ar = [ @@s_classic_new, @@s_classic_show, @@s_classic_create, @@s_classic_update, @@s_classic_destroy, @@s_classic_edit ].freeze
+  @@restful_route_ar = [ @@restful_index, @@restful_create, @@restful_new, @@restful_show, @@restful_update, @@restful_destroy, @@restful_edit ].freeze
+  @@s_restful_route_ar = [ @@s_restful_new, @@s_restful_show, @@s_restful_create, @@s_restful_update, @@s_restful_destroy, @@s_restful_edit ].freeze
+  @@pretty_route_ar = [ @@pretty_index, @@pretty_new, @@pretty_create, @@pretty_show, @@restful_edit, @@pretty_update, @@pretty_destroy ].freeze
+  @@s_pretty_route_ar = [ @@s_pretty_new, @@s_pretty_create, @@s_pretty_show, @@s_pretty_edit, @@s_pretty_update, @@s_pretty_destroy ].freeze
+  @@default_route_ar = [ @@restful_index, @@restful_create, @@pretty_index, @@restful_new, @@restful_show, @@restful_update, @@restful_destroy, @@restful_edit ].freeze
+  @@s_default_route_ar = [ @@s_restful_new, @@s_restful_show, @@s_restful_create, @@s_restful_update, @@s_restful_destroy, @@s_restful_edit ].freeze
+  @@pretty_plus_restful_route_ar = [ @@restful_index, @@restful_create, @@pretty_index, @@restful_new, @@pretty_create,
+        @@restful_show, @@restful_update, @@restful_destroy, @@pretty_show, @@pretty_edit, @@pretty_update, @@pretty_destroy ].freeze
+  @@s_pretty_plus_restful_route_ar = [ @@s_restful_new, @@s_pretty_create, @@s_restful_show, @@s_restful_create,
+        @@s_restful_update, @@s_restful_destroy, @@s_pretty_show, @@s_pretty_edit, @@s_pretty_update, @@s_pretty_destroy ].freeze
   @@classic_plus_restful_route_ar = (@@classic_route_ar | @@restful_route_ar).freeze
   @@s_classic_plus_restful_route_ar = (@@s_classic_route_ar | @@s_restful_route_ar).freeze
   @@classic_plus_pretty_route_ar = (@@classic_route_ar | @@pretty_route_ar).freeze
@@ -318,9 +230,9 @@ class RouteTester
 
   # These return a few more useful arrays.
   def self.restful_c_u_d_ar()
-    [ RT.restful_create,RT.restful_create_f, RT.restful_update,RT.restful_update_f, RT.restful_destroy,RT.restful_destroy_f ] ; end
+    [ RT.restful_create, RT.restful_update, RT.restful_destroy ] ; end
   def self.s_restful_c_u_d_ar()
-    [ RT.s_restful_create,RT.s_restful_create_f, RT.s_restful_update,RT.s_restful_update_f, RT.s_restful_destroy,RT.s_restful_destroy_f ] ; end
+    [ RT.s_restful_create, RT.s_restful_update, RT.s_restful_destroy ] ; end
 
   end # class
 
@@ -534,14 +446,14 @@ def should_have_collec_named_classics(singular, plural, options={}) # assert_nam
   @opts[:options].delete :action
   name_prefix = @opts[:name_prefix]
   shallow_prefix = "#{@opts[:name_prefix] unless @opts[:shallow]}"
-  should_be_named_route "#{@collec_path}"         ,                    "#{name_prefix}#{plural}" ,@opts[:options        ]
-  should_be_named_route "#{@collec_path}.xml"     ,          "formatted_#{name_prefix}#{plural}" ,@opts[:options        ].merge(         :format=>'xml')
-  should_be_named_route "#{@new_path}"            ,              "new_#{name_prefix}#{singular}" ,@opts[:options        ]
-  should_be_named_route "#{@new_path}.xml"        ,    "formatted_new_#{name_prefix}#{singular}" ,@opts[:options        ].merge(         :format=>'xml')
-  should_be_named_route "#{@shallow_path}/1"      ,               "#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1'               )
-  should_be_named_route "#{@shallow_path}/1.xml"  ,     "formatted_#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1',:format=>'xml')
-  should_be_named_route "#{@edit_member_path}"    ,          "edit_#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1'               )
-  should_be_named_route "#{@edit_member_path}.xml","formatted_edit_#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1',:format=>'xml')
+  should_be_named_route "#{@collec_path}"         ,          "#{name_prefix}#{plural}" ,@opts[:options        ]
+  should_be_named_route "#{@collec_path}.xml"     ,          "#{name_prefix}#{plural}" ,@opts[:options        ].merge(         :format=>'xml')
+  should_be_named_route "#{@new_path}"            ,    "new_#{name_prefix}#{singular}" ,@opts[:options        ]
+  should_be_named_route "#{@new_path}.xml"        ,    "new_#{name_prefix}#{singular}" ,@opts[:options        ].merge(         :format=>'xml')
+  should_be_named_route "#{@shallow_path}/1"      ,     "#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1'               )
+  should_be_named_route "#{@shallow_path}/1.xml"  ,     "#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1',:format=>'xml')
+  should_be_named_route "#{@edit_member_path}"    ,"edit_#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1'               )
+  should_be_named_route "#{@edit_member_path}.xml","edit_#{shallow_prefix}#{singular}" ,@opts[:shallow_options].merge(:id=>'1',:format=>'xml')
   yield options[:options] if block_given?
   end
 
@@ -585,12 +497,12 @@ def should_have_singleton_named_classics(singular, options={})
   get :show, @opts[:options]
   @opts[:options].delete :action
   name_prefix = options[:name_prefix]
-  should_be_named_route "#{@full_path}"     ,                "#{name_prefix}#{singular}" ,@opts[:options]
-  should_be_named_route "#{@full_path}.xml" ,      "formatted_#{name_prefix}#{singular}" ,@opts[:options].merge(:format=>'xml')
-  should_be_named_route "#{@new_path}"      ,            "new_#{name_prefix}#{singular}" ,@opts[:options]
-  should_be_named_route "#{@new_path}.xml"  ,  "formatted_new_#{name_prefix}#{singular}" ,@opts[:options].merge(:format=>'xml')
-  should_be_named_route "#{@edit_path}"     ,           "edit_#{name_prefix}#{singular}" ,@opts[:options]
-  should_be_named_route "#{@edit_path}.xml" , "formatted_edit_#{name_prefix}#{singular}" ,@opts[:options].merge(:format=>'xml')
+  should_be_named_route "#{@full_path}"     ,      "#{name_prefix}#{singular}" ,@opts[:options]
+  should_be_named_route "#{@full_path}.xml" ,      "#{name_prefix}#{singular}" ,@opts[:options].merge(:format=>'xml')
+  should_be_named_route "#{@new_path}"      ,  "new_#{name_prefix}#{singular}" ,@opts[:options]
+  should_be_named_route "#{@new_path}.xml"  ,  "new_#{name_prefix}#{singular}" ,@opts[:options].merge(:format=>'xml')
+  should_be_named_route "#{@edit_path}"     , "edit_#{name_prefix}#{singular}" ,@opts[:options]
+  should_be_named_route "#{@edit_path}.xml" , "edit_#{name_prefix}#{singular}" ,@opts[:options].merge(:format=>'xml')
   end
 
 def should_be_named_route(exp_path, route_name, options={})
@@ -629,7 +541,7 @@ def should_route(path, options, defaults={}, extras={}, message=nil)
 def recognize_request(path, verb=nil)
   path = "/#{path}" unless path.first == '/'
   # Assume given controller
-  request = ActionController::TestRequest.new({}, {}, nil)
+  request = ActionController::TestRequest.new({})
   request.env["REQUEST_METHOD"] = verb.to_s.upcase if verb
   request.path = path
   ActionController::Routing::Routes.recognize(request)

@@ -91,11 +91,10 @@ private
       @o_nest_id_name_suffix= opt_or_default_s(:nest_id_name_suffix, @o_id_name_suffix)
       @o_root_name_suffix   = opt_or_default_s(:root_name_suffix, '_root')
       @o_id_root_name_suffix= opt_or_default_s(:id_root_name_suffix, '')
-      @o_f_name_suffix      = opt_or_default_s(:f_name_suffix, '_f')
       @o_name_prefix = (@options[:outlaw_name_prefix] || @options[:name_prefix] || @options[:o_nest_name_prefix]).to_s
       @o_path_prefix = (@options[:outlaw_path_prefix] || @options[:path_prefix] || @options[:o_nest_path_prefix]).to_s
-      @o_shallow_path_prefix = "#{ @o_path_prefix unless @options[:shallow] && !@is_singleton }"
-      @o_shallow_name_prefix = "#{ @o_name_prefix unless @options[:shallow] && !@is_singleton }"
+      @o_shallow_path_prefix = !@is_singleton && @options[:shallow] ? (@options[:namespace]||'').sub(/\/$/,'') : @o_path_prefix
+      @o_shallow_name_prefix = !@is_singleton && @options[:shallow] ? (@options[:namespace]||'').gsub(/\//,'_') : @o_name_prefix
       @o_nest_path_prefix = "#{@o_shallow_path_prefix}/#{o_path_seg}/:#{@singular}_id"
       @o_nest_name_prefix = "#{@o_shallow_name_prefix}#{@singular}#{@o_nest_id_name_suffix unless @is_singleton}_"
       @o_collec_path = "#{@o_path_prefix}/#{o_path_seg}"
@@ -111,8 +110,8 @@ private
       c_path_seg = @options[:as] || (@is_singleton ? @singular : @plural)
       @c_name_prefix = (@options[:classic_name_prefix] || @options[:name_prefix] || @options[:c_nest_name_prefix]).to_s
       @c_path_prefix = (@options[:classic_path_prefix] || @options[:path_prefix] || @options[:c_nest_path_prefix]).to_s
-      @c_shallow_path_prefix = "#{ @c_path_prefix unless @options[:shallow] && !@is_singleton }"
-      @c_shallow_name_prefix = "#{ @c_name_prefix unless @options[:shallow] && !@is_singleton }"
+      @c_shallow_path_prefix = !@is_singleton && @options[:shallow] ? (@options[:namespace]||'').sub(/\/$/,'') : @c_path_prefix
+      @c_shallow_name_prefix = !@is_singleton && @options[:shallow] ? (@options[:namespace]||'').gsub(/\//,'_') : @c_name_prefix
       @c_nest_path_prefix = "#{@c_shallow_path_prefix}/#{c_path_seg}/:#{@singular}_id"
       @c_nest_name_prefix = "#{@c_shallow_name_prefix}#{@singular}_"
       @c_collec_path = "#{@c_path_prefix}/#{c_path_seg}"
@@ -143,75 +142,84 @@ private
         @std_quad_by_mnem['index'] = [:index,nil,nil,nil] ; end
       @user_action_ar_h = {}
       [:collection,:member,:new].each {|actn_div| augment_actions(actn_div, @options[actn_div]) }
-      @want = {} # Keyed by individual-route mnemonics, not paired-route or mass-route mnemonics.
+      @want = {} # Keyed by elemental mnemonics, not mass mnemonics.
+      # Register the :provide and :omit options.
       want(@options[:provide] || [:default])
       omit(@options[:omit] || [])
+
+      # Don't confuse the default actions (Rails) with route mnemonics (Outlaw).
+      # Action symbols refer to which actions are to be mapped according to the :only and :except options,
+      # which is a feature new to Rails 2.3. Route mnemonics are a different concept, which refer to one
+      # or more routes by a mnemonic name, for purposes of user manipulation. For example, the mnemonic
+      # 'pretty' refers to a set of seven routes, and the mnemonic 'edit' refers to a set of one route. By
+      # contrast, the default action :edit refers to a piece of Ruby code in a controller somewhere. The
+      # :only and :except options are used to enable or disable access to that action. outlaw_resources
+      # implements :only and :except by simulating :provide and :omit so as to have the same effect.
+
+      # Register the :only and :except options.
+      if @options[:only] # If :only is present, ignore :except to avoid conflicts.
+        want_only_these_actions(@options[:only])
+      elsif @options[:except]
+        dont_want_these_actions(@options[:except])
+        end
+
       # Build "learn" variables:
       @rdescr_by_name = {}
-      @name_pair_ar = []
+      @name_ar = []
 
       # Build the collision-prone route names, removing duplicates.
-      @c_member_name_nof = "#{@c_shallow_name_prefix}#{@singular}"
-      @c_member_name_f   = c_f_from_nof(@c_member_name_nof)
-      @o_member_name_nof = "#{@o_shallow_name_prefix}#{@singular}#{@is_singleton ? @o_root_name_suffix : (@o_id_name_suffix + @o_id_root_name_suffix)}"
-      @o_member_name_f   = o_f_from_nof(@o_member_name_nof)
-      @o_member_name_nof = '' if want?(:classic_member_nof) && @o_member_name_nof==@c_member_name_nof
-      @o_member_name_f   = '' if want?(:classic_member_f  ) && @o_member_name_f  ==@c_member_name_f
-      @c_collec_name_nof = "#{@c_name_prefix}#{@plural}#{'_index' if @singular==@plural}"
-      @c_collec_name_f   = c_f_from_nof(@c_collec_name_nof)
-      @o_collec_name_nof = "#{@o_name_prefix}#{@singular}#{@o_root_name_suffix}"
-      @o_collec_name_f   = o_f_from_nof(@o_collec_name_nof)
-      @o_collec_name_nof = '' if want?(:classic_collection_nof) && @o_collec_name_nof==@c_collec_name_nof
-      @o_collec_name_f   = '' if want?(:classic_collection_f  ) && @o_collec_name_f  ==@c_collec_name_f
-      @o_index_name_nof  = "#{@o_name_prefix}#{@singular}_index"
-      @o_index_name_f    = o_f_from_nof(@o_index_name_nof)
-      @o_index_name_nof  = '' if want?(:classic_collection_nof) && @o_index_name_nof==@c_collec_name_nof
-      @o_index_name_f    = '' if want?(:classic_collection_f  ) && @o_index_name_f  ==@c_collec_name_f
+      @c_member_name = "#{@c_shallow_name_prefix}#{@singular}"
+      @o_member_name = "#{@o_shallow_name_prefix}#{@singular}#{@is_singleton ? @o_root_name_suffix : (@o_id_name_suffix + @o_id_root_name_suffix)}"
+      @o_member_name = '' if want?(:classic_member) && @o_member_name==@c_member_name
+      @c_collec_name = "#{@c_name_prefix}#{@plural}#{'_index' if @singular==@plural}"
+      @o_collec_name = "#{@o_name_prefix}#{@singular}#{@o_root_name_suffix}"
+      @o_collec_name = '' if want?(:classic_collection) && @o_collec_name==@c_collec_name
+      @o_index_name  = "#{@o_name_prefix}#{@singular}_index"
+      @o_index_name  = '' if want?(:classic_collection) && @o_index_name==@c_collec_name
 
       # Learn the classic routes.
       (@user_action_ar_h['collection']||[]).sort.each {|action|
-        learn_classic_pair("#{action}_#{@c_name_prefix}#{@plural}", "#{@c_collec_path}#{@a_sep}#{action}", "classic_#{action}_collection") }
-      learn_pair(@c_collec_name_nof, @c_collec_path, @c_collec_name_f, 'classic_collection')
+        learn_cluster!("#{action}_#{@c_name_prefix}#{@plural}", "#{@c_collec_path}#{@a_sep}#{action}", "classic_#{action}_collection") }
+      learn_cluster!(@c_collec_name, @c_collec_path, 'classic_collection')
       c_new_path = "#{@c_collec_path}/#{action_path_frag(:new)}"
-      learn_classic_pair("new_#{@c_name_prefix}#{@singular}", c_new_path, 'classic_new')
+      learn_cluster!("new_#{@c_name_prefix}#{@singular}", c_new_path, 'classic_new')
       (@user_action_ar_h['new']||[]).sort.each {|action|
-        learn_classic_pair("#{action}#{'_new' unless action=='new'}_#{@c_name_prefix}#{@singular}", "#{c_new_path}#{@a_sep+action.to_s unless action=='new'}", "classic_#{action}_new") }
+        learn_cluster!("#{action}#{'_new' unless action=='new'}_#{@c_name_prefix}#{@singular}", "#{c_new_path}#{@a_sep+action.to_s unless action=='new'}", "classic_#{action}_new") }
       (@user_action_ar_h['member']||[]).sort.each {|action|
-        learn_classic_pair("#{action}_#{@c_shallow_name_prefix}#{@singular}", "#{@c_member_path}#{@a_sep}#{action_path_frag(action)}", "classic_#{action}_member") }
-      learn_pair(@c_member_name_nof, @c_member_path, @c_member_name_f, 'classic_member')
-      learn_classic_pair("edit_#{@c_shallow_name_prefix}#{@singular}", "#{@c_member_path}#{@a_sep}#{action_path_frag(:edit)}", 'classic_edit')
+        learn_cluster!("#{action}_#{@c_shallow_name_prefix}#{@singular}", "#{@c_member_path}#{@a_sep}#{action_path_frag(action)}", "classic_#{action}_member") }
+      learn_cluster!(@c_member_name, @c_member_path, 'classic_member')
+      learn_cluster!("edit_#{@c_shallow_name_prefix}#{@singular}", "#{@c_member_path}#{@a_sep}#{action_path_frag(:edit)}", 'classic_edit')
 
       # Learn the outlaw routes.
       (@user_action_ar_h['collection']||[]).sort.each {|action|
-        learn_outlaw_pair("#{@o_name_prefix}#{@singular}_#{action}", "#{@o_collec_path}#{@a_sep}#{action}", "#{action}_collection") }
-      learn_pair(@o_collec_name_nof, @o_collec_path, @o_collec_name_f, 'collection')
-      learn_pair(@o_index_name_nof, "#{@o_collec_path}/#{action_path_frag(:index)}", @o_index_name_f, 'index')
+        learn_cluster!("#{@o_name_prefix}#{@singular}_#{action}", "#{@o_collec_path}#{@a_sep}#{action}", "#{action}_collection") }
+      learn_cluster!(@o_collec_name, @o_collec_path, 'collection')
+      learn_cluster!(@o_index_name, "#{@o_collec_path}/#{action_path_frag(:index)}", 'index')
       o_new_path = "#{@o_collec_path}/#{action_path_frag(:new)}"
-      learn_outlaw_pair("#{@o_name_prefix}#{@singular}_new", o_new_path, 'new')
+      learn_cluster!("#{@o_name_prefix}#{@singular}_new", o_new_path, 'new')
       (@user_action_ar_h['new']||[]).sort.each {|action|
-        learn_outlaw_pair("#{@o_name_prefix}#{@singular}#{'_new' unless action=='new'}_#{action}", "#{o_new_path}#{@a_sep+action.to_s unless action=='new'}", "#{action}_new") }
-      learn_outlaw_pair("#{@o_name_prefix}#{@singular}_create", "#{@o_collec_path}/#{action_path_frag(:create )}", 'create')
+        learn_cluster!("#{@o_name_prefix}#{@singular}#{'_new' unless action=='new'}_#{action}", "#{o_new_path}#{@a_sep+action.to_s unless action=='new'}", "#{action}_new") }
+      learn_cluster!("#{@o_name_prefix}#{@singular}_create", "#{@o_collec_path}/#{action_path_frag(:create )}", 'create')
       (@user_action_ar_h['member']||[]).sort.each {|action|
-        learn_outlaw_pair("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_#{action}", "#{@o_member_path}#{@a_sep}#{action}", "#{action}_member") }
-      learn_pair(@o_member_name_nof, @o_member_path, @o_member_name_f, 'member')
-      learn_outlaw_pair("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_show"   ,"#{@o_member_path}#{@a_sep}#{action_path_frag(:show   )}",'show')
-      learn_outlaw_pair("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_edit"   ,"#{@o_member_path}#{@a_sep}#{action_path_frag(:edit   )}",'edit')
-      learn_outlaw_pair("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_update" ,"#{@o_member_path}#{@a_sep}#{action_path_frag(:update )}",'update')
-      learn_outlaw_pair("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_destroy","#{@o_member_path}#{@a_sep}#{action_path_frag(:destroy)}",'destroy')
+        learn_cluster!("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_#{action}", "#{@o_member_path}#{@a_sep}#{action}", "#{action}_member") }
+      learn_cluster!(@o_member_name, @o_member_path, 'member')
+      learn_cluster!("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_show"   ,"#{@o_member_path}#{@a_sep}#{action_path_frag(:show   )}",'show')
+      learn_cluster!("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_edit"   ,"#{@o_member_path}#{@a_sep}#{action_path_frag(:edit   )}",'edit')
+      learn_cluster!("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_update" ,"#{@o_member_path}#{@a_sep}#{action_path_frag(:update )}",'update')
+      learn_cluster!("#{@o_shallow_name_prefix}#{@singular}#{@o_id_name_suffix unless @is_singleton}_destroy","#{@o_member_path}#{@a_sep}#{action_path_frag(:destroy)}",'destroy')
 
       # Perform the actual mapping of the learned routes.
-      @name_pair_ar.each do |name_pair|
-        [:get,:post,:put,:delete].each_with_index do |verb, verb_i|
-          name_pair.each do |name| next unless name and rdescr = @rdescr_by_name[name] and action = (quad = rdescr[:quad])[verb_i]
-            path = rdescr[:path] ; name = rdescr.delete(:name)  # Use name only once.
+      @name_ar.each do |name|
+        use_name = true
+        [:get,:post,:put,:delete].each_with_index do |verb, verb_i| next unless rdescr = @rdescr_by_name[name] and action = (quad = rdescr[:quad])[verb_i]
+            path = rdescr[:path]+'.:format'
             opts = { :controller=>@controller, :action=>action.to_s, :conditions=>@conditions.dup }
-            if verb_i==0 && quad.all? {|a| a==action }
-              rdescr[:quad] = [nil,nil,nil,nil] # Skip the other three iterations (eventually).
-            else
-              opts[:conditions].merge!(:method=>verb) ; end # Specify a verb unless all four actions are identical.
+            # Only map one route if all four actions are identical, else specify an HTTP verb at each appropriate iteration.
+            if verb_i==0 && quad.all? {|a| a==action } then rdescr[:quad] = [nil,nil,nil,nil] else opts[:conditions].merge!(:method=>verb) ; end
             opts.merge!( "/#{path}/" =~ @path_id_regex ? @reqs_with_id : @reqs_without_id )
-            map_one_route!(name, path, opts)
-        end ; end ; end
+            map_one_route!((use_name ? name : ''), path, opts)
+            use_name = false  # Use name only once.
+        end ; end
 
       # Map the :has_many and :has_one associations:
       map_has_many_associations(@options.delete(:has_many)) if @options[:has_many]
@@ -219,7 +227,7 @@ private
       end # def initialize
 
     def codeblock_nest_options # Used by nested code blocks, which may contain calls to outlaw_resource() , resource() , outlaw_resources() , or resources() .
-      @options.slice(:shallow,:namespace,:provide,:omit,:plural_controllers,:f_name_suffix,:id_name_suffix,:nest_id_name_suffix,:root_name_suffix,:id_root_name_suffix).merge({
+      @options.slice(:shallow,:namespace,:provide,:omit,:plural_controllers,:id_name_suffix,:nest_id_name_suffix,:root_name_suffix,:id_root_name_suffix).merge({
         :o_nest_path_prefix=>@o_nest_path_prefix, :o_nest_name_prefix=>@o_nest_name_prefix, :c_nest_path_prefix=>@c_nest_path_prefix, :c_nest_name_prefix=>@c_nest_name_prefix })
       end
 
@@ -292,14 +300,35 @@ private
     # mnemonic, it is unpacked to its elemental constituents, and a Hash is returned with each elemental
     # route as keys, and action quads as a value. An unrecognized mnemonic raises ArgumentError.
     def hash_of_mnem(mnem) mnem = mnem.to_s
-      q = @std_quad_by_mnem[k = mnem] and return { "#{mnem}_f"=>q, "#{mnem}_nof"=>q }
-      mnem.last(2)=='_f'   and q = @std_quad_by_mnem[k = mnem[0..-3]] and return { mnem=>q }
-      mnem.last(4)=='_nof' and q = @std_quad_by_mnem[k = mnem[0..-5]] and return { mnem=>q }
+      q = @std_quad_by_mnem[k = mnem] and return { mnem=>q }
       mnem_ar = @mass_mnem[k] or raise ArgumentError, "Invalid mnemonic symbol - #{mnem.inspect}"
       rval = {}
-      suff = (suflen = mnem.length - k.length).zero? ? '' : mnem.last(suflen) # Rails bug: last(0). Fixed in outlaw_extensions.
-      mnem_ar.each {|mn| rval.merge!(hash_of_mnem(mn+suff)) }
+      mnem_ar.each {|mn| rval.merge!(hash_of_mnem(mn)) }
       rval
+      end
+
+    # Given an action name or array of such, strike all the actions listed from the quads of the @want hash.
+    def dont_want_these_actions(*except_ar)
+      except_ar = except_ar.flatten.collect {|action| action.to_sym }
+      return if except_ar.include?(:none)
+      if except_ar.include?(:all) # The :all parameter does not apply to user-defined actions.
+        except_ar << [:index,:new,:create,:show,:update,:destroy,:edit]
+        except_ar = except_ar.flatten.uniq.reject {|action| action == :all }
+        end
+      @want.each_key {|mnem| @want[mnem].collect! {|action| except_ar.include?(action) ? nil : action } }
+      @want.reject! {|mnem, quad| quad == [nil,nil,nil,nil] }
+      end
+    # Given an action name or :none or :all or array of such, strike all other actions from the quads of the @want hash.
+    def want_only_these_actions(*only_ar)
+      only_ar = only_ar.flatten.collect {|action| action.to_sym }
+      return if only_ar.include?(:all)
+      ( @want = {} ; return ) if only_ar.include?(:none)
+      if only_ar.include?(:none) # The :none parameter does not apply to user-defined actions.
+        only_ar << [:index,:new,:create,:show,:update,:destroy,:edit]
+        only_ar = only_ar.flatten.uniq.reject {|action| action == :none }
+        end
+      @want.each_key {|mnem| @want[mnem].collect! {|action| only_ar.include?(action) ? action : nil } }
+      @want.reject! {|mnem, quad| quad == [nil,nil,nil,nil] }
       end
 
     # Given 'collection'|'member'|'new' and a hash {action=>(:get|:post|:put|:delete|:any|[of those]),...}
@@ -322,19 +351,18 @@ private
         @std_quad_by_mnem["#{action}_#{actn_div}"] = quad.dup ; @mass_mnem["restful"] << "#{action}_#{actn_div}"
       end ; end
 
-    def c_f_from_nof(name_nof) "formatted_#{name_nof}" ; end
-    def o_f_from_nof(name_nof) "#{name_nof}#{@o_f_name_suffix}" ; end
-    def learn_classic_pair(name_nof, path_nof, mnem) learn_pair(name_nof, path_nof, c_f_from_nof(name_nof), mnem) ; end
-    def learn_outlaw_pair( name_nof, path_nof, mnem) learn_pair(name_nof, path_nof, o_f_from_nof(name_nof), mnem) ; end
-    def learn_pair(name_nof, path_nof, name_f, pair_mnem) name_nof = name_nof.to_s ; name_f = name_f.to_s
-      mnem_nof = "#{pair_mnem}_nof" ; mnem_f = "#{pair_mnem}_f" ; name_pair = [nil,nil]
-      ( name_pair[0] = name_nof ; @rdescr_by_name[name_nof] = assimilate!(name_nof, {:name=>name_nof, :path=>path_nof.to_s   ,:quad=>clean_quad(@want[mnem_nof])}) ) if @want[mnem_nof]
-      ( name_pair[1] = name_f   ; @rdescr_by_name[name_f  ] = assimilate!(name_f, {:name=>name_f,:path=>"#{path_nof}.:format",:quad=>clean_quad(@want[mnem_f  ])}) ) if @want[mnem_f  ]
-      @name_pair_ar << name_pair unless name_pair==[nil,nil]
+    # Learn all the GET, POST, PUT, and DELETE routes for a given URL path.
+    # Data is written to @rdescr_by_name and @name_ar .
+    def learn_cluster!(name, path, mnem) name = name.to_s ; path = path.to_s
+      return unless @want[mnem]
+      new_quad = clean_quad(@want[mnem])
+      old_rdescr = @rdescr_by_name[name]
+      if old_rdescr
+        0.upto(3) {|i| new_quad[i] ||= old_rdescr[:quad][i] }
+      else
+        @name_ar << name ; end
+      @rdescr_by_name[name] = { :name=>name, :path=>path, :quad=>new_quad }
       end
-    def assimilate!(old_rname, new_rdescr) # Consolodates action quads (new trumps old).
-      old_rdescr = @rdescr_by_name[old_rname] and 0.upto(3) {|i| new_rdescr[:quad][i] ||= old_rdescr[:quad][i] }
-      new_rdescr ; end
     def clean_quad(q) (q||[nil,nil,nil,nil]).collect {|a| a ? a.to_s : nil } ; end # Dup & make all quad elements String or nil.
 
     end # class

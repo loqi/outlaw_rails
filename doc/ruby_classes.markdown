@@ -118,8 +118,6 @@ Extensions to Ruby String Class
 
 ### Instance methods
 
-	first(limit=1)                 the left side of self (fixes a Rails bug)
-	last(limit=1)                  the right side of self (fixes a Rails bug)
 	normalize_as_float!            updates self to normalized String representation of Float
 	normalize_as_int!(radix=10)    updates self to normalized String representation of Integer
 	to_f_or_0!                     parses String as Float, treating invalid as 0.0
@@ -130,18 +128,6 @@ Extensions to Ruby String Class
 	trim_whitespace!               performes trim_whitespace on self and returns new value
 	
 	bardoc                         a fancy heredoc string literal helper
-
-**`first(limit=1)`** => `String`  
-Returns a String consisting of the first `limit` number of characters from the
-receiver. This method is provided by Rails, but the Rails version returns the
-entire receiver when asked for zero characters. The Outlaw version returns `""`
-when asked for zero characters.
-
-**`last(limit=1)`** => `String`  
-Returns a String consisting of the last `limit` number of characters from the
-receiver. This method is provided by Rails, but the Rails version returns the
-entire receiver when asked for zero characters. The Outlaw version returns `""`
-when asked for zero characters.
 
 **`normalize_as_float!`** updates `self` and returns `Float`  
 Parses the content of the receiver as an alphanumeric representation of a `Float`.
@@ -248,8 +234,6 @@ Extensions to Ruby Hash Class
 
 	nils_to(new_value, *keys)        returns self with nil values replaced as specified
 	nils_to!(new_value, *keys)
-	slice(*keys)                     returns a subset of self as specified by the keys
-	slice!(*keys)
 
 **`nils_to(new_value, *keys)`** => `Hash`  
 Returns a hash in which the elements of the receiver which have `nil` as the value
@@ -260,14 +244,6 @@ omitted, all elements of the receiver are potentially affected.
 **`nils_to!(new_value, *keys)`** => `Hash`  
 Same as `nils_to`, with the receiver overwritten by the return value.
 
-**`slice(*keys)`** => `Hash`  
-Returns a hash containing all the elements of the receiver whose keys are listed in
-`keys`. If a listed key is not found in the hash, no such corresponding element is
-included in the returned hash.
-
-**`slice!(*keys)`** => `Hash`  
-Causes the receiver to contain `slice(*keys)`, and the return value to be a Hash
-populated with whatever was removed.
 
 Extensions to Ruby Comparable module
 ------------------------------------

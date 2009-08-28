@@ -224,42 +224,131 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     RT.s_all_route_ar.should be_exact_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>[:index]) }
-    [RT.pretty_index,RT.pretty_index_f].should be_exact_routes
+    [RT.pretty_index].should be_exact_routes
     doing { @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>[:index]) }
       }.should raise_error(ArgumentError)
-
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>[:all_f]) }
-    RT.all_route_ar.select   {|r| r[:path]=~/:format/ }.should be_exact_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>[:all_nof]) }
-    RT.s_all_route_ar.select {|r| r[:path]!~/:format/ }.should be_exact_routes
     end
   it "applies the :omit option, to exclude specified routes from generation" do
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>[:restful,:classic,:pretty], :omit=>[:all_nof]) }
-    RT.all_route_ar.select {|r| r[:path]=~/:format/ }.should be_exact_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>:all                       , :omit=>:all_nof) }
-    RT.s_all_route_ar.select {|r| r[:path]=~/:format/ }.should be_exact_routes
-
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>:classic, :omit=>[:all_nof]) }
-    RT.classic_route_ar.select {|r| r[:path]=~/:format/ }.should be_exact_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>:classic, :omit=>[:all_nof]) }
-    RT.s_classic_route_ar.select {|r| r[:path]=~/:format/ }.should be_exact_routes
-
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>[:restful,:classic,:pretty], :omit=>[:all_f]) }
-    RT.all_route_ar.reject {|r| r[:path]=~/:format/ }.should be_exact_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>:all                       , :omit=>[:all_f]) }
-    RT.s_all_route_ar.reject {|r| r[:path]=~/:format/ }.should be_exact_routes
-
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>:classic, :omit=>[:all_f]) }
-    RT.classic_route_ar.reject {|r| r[:path]=~/:format/ }.should be_exact_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>:classic, :omit=>[:all_f]) }
-    RT.s_classic_route_ar.reject {|r| r[:path]=~/:format/ }.should be_exact_routes
-
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>[:classic_member,:pretty], :omit=>[:all_f,:create]) }
-    [nil, nil, nil, RT.pretty_index, RT.pretty_new, RT.pretty_show, RT.pretty_edit, RT.pretty_update, RT.pretty_destroy].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources([:singular,:plural] ,:provide=>[:classic_member,:pretty], :omit=>[:create,:update]) }
+    [nil, nil, nil, RT.pretty_index, RT.pretty_new, RT.pretty_show, RT.pretty_edit, RT.pretty_destroy].should be_exact_routes
     [RT.classic_show, RT.classic_update, RT.classic_destroy].should be_assorted_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>[:classic_member,:pretty], :omit=>[:all_nof,:create]) }
-    [nil, nil, nil, nil, RT.s_pretty_new_f, RT.s_pretty_show_f, RT.s_pretty_edit_f, RT.s_pretty_update_f, RT.s_pretty_destroy_f].should be_exact_routes
-    [RT.s_classic_show_f, RT.s_classic_create_f, RT.s_classic_update_f, RT.s_classic_destroy_f].should be_assorted_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource( [:singular,:plural] ,:provide=>[:classic_member,:pretty], :omit=>[:create,:update]) }
+    [nil, nil, nil, nil, RT.s_pretty_new, RT.s_pretty_show, RT.s_pretty_edit, RT.s_pretty_destroy].should be_exact_routes
+    [RT.s_classic_show, RT.s_classic_create, RT.s_classic_update, RT.s_classic_destroy].should be_assorted_routes
+    end
+  it "understands symbols or strings specified for the :only option" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :only=>:show }
+    [RT.classic_show].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :only=>'show' }
+    [RT.classic_show, RT.restful_show, RT.pretty_show].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :only=>'show' }
+    [RT.s_classic_show].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :only=>:show }
+    [RT.s_classic_show, RT.s_restful_show, RT.s_pretty_show].should be_exact_routes
+    end
+  it "understands symbols or strings specified for the :except option" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :except=>'destroy' }
+    RT.classic_route_ar.but_without(RT.classic_destroy).should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :except=>:destroy }
+    RT.all_route_ar.but_without(RT.classic_destroy, RT.restful_destroy, RT.pretty_destroy).should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :except=>:destroy }
+    RT.s_classic_route_ar.but_without(RT.s_classic_destroy).should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :except=>'destroy' }
+    RT.s_all_route_ar.but_without(RT.s_classic_destroy, RT.s_restful_destroy, RT.s_pretty_destroy).should be_exact_routes
+    end
+  it "understands arrays specified for the :only option" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :only=>[:show,:index] }
+    [RT.classic_index, RT.classic_show].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :only=>['show',:index] }
+    [RT.classic_index, RT.classic_show, RT.restful_index, RT.pretty_index, RT.restful_show, RT.pretty_show].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :only=>[:show,'destroy'] }
+    [RT.s_classic_show, RT.s_classic_destroy].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :only=>['show','destroy'] }
+    [RT.s_classic_show, RT.s_classic_destroy, RT.s_restful_show, RT.s_pretty_show, RT.s_pretty_destroy].should be_exact_routes
+    end
+  it "understands arrays specified for the :except option" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :except=>['destroy','update'] }
+    RT.classic_route_ar.but_without(RT.classic_update, RT.classic_destroy).should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :except=>[:destroy,:update] }
+    RT.all_route_ar.but_without(RT.classic_destroy, RT.classic_update, RT.restful_update, RT.restful_destroy, RT.pretty_update, RT.pretty_destroy).should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :except=>[:destroy,:update] }
+    RT.s_classic_route_ar.but_without(RT.s_classic_update, RT.s_classic_destroy).should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :except=>['destroy',:update] }
+    RT.s_all_route_ar.but_without(RT.s_classic_update, RT.s_classic_destroy, RT.s_restful_update, RT.s_restful_destroy, RT.s_pretty_update, RT.s_pretty_destroy).should be_exact_routes
+    end
+  it ":except and :only options understand :all parameter" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :only=>:all }
+    RT.classic_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :only=>:all }
+    RT.all_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :only=>:all }
+    RT.s_classic_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :only=>:all }
+    RT.s_all_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :except=>:all }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :except=>:all }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :except=>:all }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :except=>:all }
+    [].should be_exact_routes
+    end
+  it ":except and :only options understand :none parameter" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :only=>:none }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :only=>:none }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :only=>:none }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :only=>:none }
+    [].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:classic, :except=>:none }
+    RT.classic_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :except=>:none }
+    RT.all_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:classic, :except=>:none }
+    RT.s_classic_route_ar.should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :except=>:none }
+    RT.s_all_route_ar.should be_exact_routes
+    end
+  it ":only overrules :except when both options are specified" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :except=>[:show,:new], :only=>[:show,:index] }
+    [RT.classic_index, RT.classic_show, RT.restful_index, RT.pretty_index, RT.restful_show, RT.pretty_show].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :except=>[:show,:new], :only=>[:show,:destroy] }
+    [RT.s_classic_show, RT.s_classic_destroy, RT.s_restful_show, RT.s_pretty_show, RT.s_pretty_destroy].should be_exact_routes
+    end
+  it "maps only the user-defined routes when :except=>:all and :collection=>{...} are specified together" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:product,:products], :provide=>:classic, :except=>:all, :collection=>{:sale=>:get} }
+    [ { :name=>'sale_products', :verb=>'GET', :path=>"/products/sale(.:format)", :action=>'sale', :controller=>'product' }
+      ].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:product,:products], :provide=>:all    , :except=>:all, :collection=>{:sale=>:get} }
+    [ { :name=>'sale_products', :verb=>'GET', :path=>"/products/sale(.:format)", :action=>'sale', :controller=>'product' },
+      { :name=>'product_sale' , :verb=>'GET', :path=>"/product/sale(.:format)" , :action=>'sale', :controller=>'product' }
+      ].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource [:product,:products], :provide=>:classic, :except=>:all, :collection=>{:sale=>:get} }
+    [ { :name=>'sale_product', :verb=>'GET', :path=>"/product/sale(.:format)", :action=>'sale', :controller=>'product' }
+      ].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource [:product,:products], :provide=>:all    , :except=>:all, :collection=>{:sale=>:get} }
+    [ { :name=>'sale_product', :verb=>'GET', :path=>"/product/sale(.:format)", :action=>'sale', :controller=>'product' },
+      { :name=>'product_sale', :verb=>'GET', :path=>"/product/sale(.:format)", :action=>'sale', :controller=>'product' }
+      ].should be_exact_routes
+    end
+  it "maps only the user-defined routes when :except=>:all and :member=>{...} are specified together" do
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:product,:products], :provide=>:classic, :except=>:all, :member=>{:preview=>:get} }
+    [ { :name=>'preview_product', :verb=>'GET', :path=>"/products/:id/preview(.:format)", :action=>'preview', :controller=>'product' }
+      ].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:product,:products], :provide=>:all    , :except=>:all, :member=>{:preview=>:get} }
+    [ { :name=>'preview_product'   , :verb=>'GET', :path=>"/products/:id/preview(.:format)", :action=>'preview', :controller=>'product' },
+      { :name=>'product_id_preview', :verb=>'GET', :path=>"/product/:id/preview(.:format)" , :action=>'preview', :controller=>'product' }
+      ].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource [:product,:products], :provide=>:classic, :except=>:all, :member=>{:preview=>:get} }
+    [ { :name=>'preview_product', :verb=>'GET', :path=>"/product/preview(.:format)", :action=>'preview', :controller=>'product' }
+      ].should be_exact_routes
+    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource [:product,:products], :provide=>:all    , :except=>:all, :member=>{:preview=>:get} }
+    [ { :name=>'preview_product', :verb=>'GET', :path=>"/product/preview(.:format)", :action=>'preview', :controller=>'product' },
+      { :name=>'product_preview', :verb=>'GET', :path=>"/product/preview(.:format)", :action=>'preview', :controller=>'product' }
+      ].should be_exact_routes
     end
   it 'does not normally generate any two routes with identical path+conditions+requirements' do
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources :message, :plural=>:messages, :provide=>:classic }
@@ -569,46 +658,30 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
   it 'applies :collection=>{..=>:get,..=>:post,..=>:put,..=>:delete} option, to add extra routes' do
     verb_keyed_by_action = {'a'=>:get,'b'=>:post,'c'=>:put,'d'=>:delete}
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :collection=>verb_keyed_by_action }
-    exp_route_ar  = Array.new(RT.classic_route_ar).insert_above(RT.classic_index, nil,nil,nil,nil,nil,nil,nil,nil)
-    exp_route_ar += Array.new(RT.pretty_plus_restful_route_ar).insert_above(RT.restful_index, nil,nil,nil,nil,nil,nil,nil,nil)
+    exp_route_ar  = Array.new(RT.classic_route_ar).insert_above(RT.classic_index, nil,nil,nil,nil)
+    exp_route_ar += Array.new(RT.pretty_plus_restful_route_ar).insert_above(RT.restful_index, nil,nil,nil,nil)
     exp_route_ar.should be_exact_routes
-    [ { :name=>          'a_plural' , :verb=>'GET'   ,:path=>"/plural/a"           ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'formatted_a_plural' , :verb=>'GET'   ,:path=>"/plural/a.:format"   ,:action=>'a' ,:controller=>'singular' },
-      { :name=>          'b_plural' , :verb=>'POST'  ,:path=>"/plural/b"           ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'formatted_b_plural' , :verb=>'POST'  ,:path=>"/plural/b.:format"   ,:action=>'b' ,:controller=>'singular' },
-      { :name=>          'c_plural' , :verb=>'PUT'   ,:path=>"/plural/c"           ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'formatted_c_plural' , :verb=>'PUT'   ,:path=>"/plural/c.:format"   ,:action=>'c' ,:controller=>'singular' },
-      { :name=>          'd_plural' , :verb=>'DELETE',:path=>"/plural/d"           ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'formatted_d_plural' , :verb=>'DELETE',:path=>"/plural/d.:format"   ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'singular_a'         , :verb=>'GET'   ,:path=>"/singular/a"         ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'singular_a_f'       , :verb=>'GET'   ,:path=>"/singular/a.:format" ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'singular_b'         , :verb=>'POST'  ,:path=>"/singular/b"         ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'singular_b_f'       , :verb=>'POST'  ,:path=>"/singular/b.:format" ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'singular_c'         , :verb=>'PUT'   ,:path=>"/singular/c"         ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'singular_c_f'       , :verb=>'PUT'   ,:path=>"/singular/c.:format" ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'singular_d'         , :verb=>'DELETE',:path=>"/singular/d"         ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'singular_d_f'       , :verb=>'DELETE',:path=>"/singular/d.:format" ,:action=>'d' ,:controller=>'singular' }
+    [ { :name=>  'a_plural' , :verb=>'GET'   ,:path=>"/plural/a(.:format)"   ,:action=>'a' ,:controller=>'singular' },
+      { :name=>  'b_plural' , :verb=>'POST'  ,:path=>"/plural/b(.:format)"   ,:action=>'b' ,:controller=>'singular' },
+      { :name=>  'c_plural' , :verb=>'PUT'   ,:path=>"/plural/c(.:format)"   ,:action=>'c' ,:controller=>'singular' },
+      { :name=>  'd_plural' , :verb=>'DELETE',:path=>"/plural/d(.:format)"   ,:action=>'d' ,:controller=>'singular' },
+      { :name=>'singular_a' , :verb=>'GET'   ,:path=>"/singular/a(.:format)" ,:action=>'a' ,:controller=>'singular' },
+      { :name=>'singular_b' , :verb=>'POST'  ,:path=>"/singular/b(.:format)" ,:action=>'b' ,:controller=>'singular' },
+      { :name=>'singular_c' , :verb=>'PUT'   ,:path=>"/singular/c(.:format)" ,:action=>'c' ,:controller=>'singular' },
+      { :name=>'singular_d' , :verb=>'DELETE',:path=>"/singular/d(.:format)" ,:action=>'d' ,:controller=>'singular' }
       ].should be_assorted_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :collection=>verb_keyed_by_action }
-    exp_route_ar = Array.new(RT.s_classic_route_ar).insert_above(RT.s_classic_show, nil,nil,nil,nil,nil,nil,nil,nil)
-    exp_route_ar += RT.s_pretty_plus_restful_route_ar.but_without(*RT.s_restful_c_u_d_ar).insert_above(RT.s_restful_show, nil,nil,nil,nil,nil,nil,nil,nil)
+    exp_route_ar = Array.new(RT.s_classic_route_ar).insert_above(RT.s_classic_show, nil,nil,nil,nil)
+    exp_route_ar += RT.s_pretty_plus_restful_route_ar.but_without(*RT.s_restful_c_u_d_ar).insert_above(RT.s_restful_show, nil,nil,nil,nil)
     exp_route_ar.should be_exact_routes
-    [ { :name=>          'a_singular',:verb=>'GET'   ,:path=>"/singular/a"         ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'formatted_a_singular',:verb=>'GET'   ,:path=>"/singular/a.:format" ,:action=>'a' ,:controller=>'singular' },
-      { :name=>          'b_singular',:verb=>'POST'  ,:path=>"/singular/b"         ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'formatted_b_singular',:verb=>'POST'  ,:path=>"/singular/b.:format" ,:action=>'b' ,:controller=>'singular' },
-      { :name=>          'c_singular',:verb=>'PUT'   ,:path=>"/singular/c"         ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'formatted_c_singular',:verb=>'PUT'   ,:path=>"/singular/c.:format" ,:action=>'c' ,:controller=>'singular' },
-      { :name=>          'd_singular',:verb=>'DELETE',:path=>"/singular/d"         ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'formatted_d_singular',:verb=>'DELETE',:path=>"/singular/d.:format" ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'singular_a'          ,:verb=>'GET'   ,:path=>"/singular/a"         ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'singular_a_f'        ,:verb=>'GET'   ,:path=>"/singular/a.:format" ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'singular_b'          ,:verb=>'POST'  ,:path=>"/singular/b"         ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'singular_b_f'        ,:verb=>'POST'  ,:path=>"/singular/b.:format" ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'singular_c'          ,:verb=>'PUT'   ,:path=>"/singular/c"         ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'singular_c_f'        ,:verb=>'PUT'   ,:path=>"/singular/c.:format" ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'singular_d'          ,:verb=>'DELETE',:path=>"/singular/d"         ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'singular_d_f'        ,:verb=>'DELETE',:path=>"/singular/d.:format" ,:action=>'d' ,:controller=>'singular' }
+    [ { :name=>'a_singular' ,:verb=>'GET'   ,:path=>"/singular/a(.:format)" ,:action=>'a' ,:controller=>'singular' },
+      { :name=>'b_singular' ,:verb=>'POST'  ,:path=>"/singular/b(.:format)" ,:action=>'b' ,:controller=>'singular' },
+      { :name=>'c_singular' ,:verb=>'PUT'   ,:path=>"/singular/c(.:format)" ,:action=>'c' ,:controller=>'singular' },
+      { :name=>'d_singular' ,:verb=>'DELETE',:path=>"/singular/d(.:format)" ,:action=>'d' ,:controller=>'singular' },
+      { :name=>'singular_a' ,:verb=>'GET'   ,:path=>"/singular/a(.:format)" ,:action=>'a' ,:controller=>'singular' },
+      { :name=>'singular_b' ,:verb=>'POST'  ,:path=>"/singular/b(.:format)" ,:action=>'b' ,:controller=>'singular' },
+      { :name=>'singular_c' ,:verb=>'PUT'   ,:path=>"/singular/c(.:format)" ,:action=>'c' ,:controller=>'singular' },
+      { :name=>'singular_d' ,:verb=>'DELETE',:path=>"/singular/d(.:format)" ,:action=>'d' ,:controller=>'singular' }
       ].should be_assorted_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :collection=>verb_keyed_by_action }
@@ -635,65 +708,45 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       :collection=>verb_keyed_by_action, :path_prefix=>'/path_prefix/:path_prefix_id', :name_prefix=>'name_prefix_' }
     RT.classic_route_ar.collect {|orig_r| r = orig_r.dup
       unless r[:name].blank?
-        formatted = r[:name][0..9]=='formatted_' ; r[:name] = r[:name][10..-1] if formatted
         r[:name] = ( r[:name] =~ /^(new_|edit_)/ ? r[:name].sub(/(new_|edit_)/, "#{$1}name_prefix_") : "name_prefix_#{r[:name]}" )
-        r[:name] = "formatted_#{r[:name]}" if formatted
         end
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }.should be_assorted_routes
-    [ { :name=>          'a_name_prefix_plural' ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/plural/a"           ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'formatted_a_name_prefix_plural' ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/plural/a.:format"   ,:action=>'a' ,:controller=>'singular' },
-      { :name=>          'b_name_prefix_plural' ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/plural/b"           ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'formatted_b_name_prefix_plural' ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/plural/b.:format"   ,:action=>'b' ,:controller=>'singular' },
-      { :name=>          'c_name_prefix_plural' ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/plural/c"           ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'formatted_c_name_prefix_plural' ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/plural/c.:format"   ,:action=>'c' ,:controller=>'singular' },
-      { :name=>          'd_name_prefix_plural' ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/plural/d"           ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'formatted_d_name_prefix_plural' ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/plural/d.:format"   ,:action=>'d' ,:controller=>'singular' }
+    [ { :name=>'a_name_prefix_plural' ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/plural/a(.:format)" ,:action=>'a' ,:controller=>'singular' },
+      { :name=>'b_name_prefix_plural' ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/plural/b(.:format)" ,:action=>'b' ,:controller=>'singular' },
+      { :name=>'c_name_prefix_plural' ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/plural/c(.:format)" ,:action=>'c' ,:controller=>'singular' },
+      { :name=>'d_name_prefix_plural' ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/plural/d(.:format)" ,:action=>'d' ,:controller=>'singular' }
       ].should be_assorted_routes
     RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = "name_prefix_#{r[:name]}" unless r[:name].blank?
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }.should be_assorted_routes
-    [ { :name=>'name_prefix_singular_a'  ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a"         ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_a_f',:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a.:format" ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_b'  ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b"         ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_b_f',:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b.:format" ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_c'  ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c"         ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_c_f',:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c.:format" ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_d'  ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d"         ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_d_f',:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d.:format" ,:action=>'d' ,:controller=>'singular' }
+    [ { :name=>'name_prefix_singular_a' ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a(.:format)" ,:action=>'a' ,:controller=>'singular' },
+      { :name=>'name_prefix_singular_b' ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b(.:format)" ,:action=>'b' ,:controller=>'singular' },
+      { :name=>'name_prefix_singular_c' ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c(.:format)" ,:action=>'c' ,:controller=>'singular' },
+      { :name=>'name_prefix_singular_d' ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d(.:format)" ,:action=>'d' ,:controller=>'singular' }
       ].should be_assorted_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all,
       :collection=>verb_keyed_by_action, :path_prefix=>'/path_prefix/:path_prefix_id', :name_prefix=>'name_prefix_' }
     RT.s_classic_route_ar.collect {|orig_r| r = orig_r.dup
       unless r[:name].blank?
-        formatted = r[:name][0..9]=='formatted_' ; r[:name] = r[:name][10..-1] if formatted
         r[:name] = ( r[:name] =~ /^(new_|edit_)/ ? r[:name].sub(/(new_|edit_)/, "#{$1}name_prefix_") : "name_prefix_#{r[:name]}" )
-        r[:name] = "formatted_#{r[:name]}" if formatted
         end
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }.should be_assorted_routes
-    [ { :name=>          'a_name_prefix_singular',:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a"        ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'formatted_a_name_prefix_singular',:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a.:format",:action=>'a' ,:controller=>'singular' },
-      { :name=>          'b_name_prefix_singular',:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b"        ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'formatted_b_name_prefix_singular',:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b.:format",:action=>'b' ,:controller=>'singular' },
-      { :name=>          'c_name_prefix_singular',:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c"        ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'formatted_c_name_prefix_singular',:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c.:format",:action=>'c' ,:controller=>'singular' },
-      { :name=>          'd_name_prefix_singular',:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d"        ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'formatted_d_name_prefix_singular',:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d.:format",:action=>'d' ,:controller=>'singular' }
+    [ { :name=>'a_name_prefix_singular' ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a(.:format)",:action=>'a' ,:controller=>'singular' },
+      { :name=>'b_name_prefix_singular' ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b(.:format)",:action=>'b' ,:controller=>'singular' },
+      { :name=>'c_name_prefix_singular' ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c(.:format)",:action=>'c' ,:controller=>'singular' },
+      { :name=>'d_name_prefix_singular' ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d(.:format)",:action=>'d' ,:controller=>'singular' }
       ].should be_assorted_routes
     RT.s_pretty_plus_restful_route_ar.but_without(*RT.s_restful_c_u_d_ar).collect {|orig_r| r = orig_r.dup
       r[:name] = "name_prefix_#{r[:name]}" unless r[:name].blank?
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }.should be_assorted_routes
-    [ { :name=>'name_prefix_singular_a'         ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a"         ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_a_f'       ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a.:format" ,:action=>'a' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_b'         ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b"         ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_b_f'       ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b.:format" ,:action=>'b' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_c'         ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c"         ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_c_f'       ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c.:format" ,:action=>'c' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_d'         ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d"         ,:action=>'d' ,:controller=>'singular' },
-      { :name=>'name_prefix_singular_d_f'       ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d.:format" ,:action=>'d' ,:controller=>'singular' }
+    [ { :name=>'name_prefix_singular_a' ,:verb=>'GET'   ,:path=>"/path_prefix/:path_prefix_id/singular/a(.:format)" ,:action=>'a' ,:controller=>'singular' },
+      { :name=>'name_prefix_singular_b' ,:verb=>'POST'  ,:path=>"/path_prefix/:path_prefix_id/singular/b(.:format)" ,:action=>'b' ,:controller=>'singular' },
+      { :name=>'name_prefix_singular_c' ,:verb=>'PUT'   ,:path=>"/path_prefix/:path_prefix_id/singular/c(.:format)" ,:action=>'c' ,:controller=>'singular' },
+      { :name=>'name_prefix_singular_d' ,:verb=>'DELETE',:path=>"/path_prefix/:path_prefix_id/singular/d(.:format)" ,:action=>'d' ,:controller=>'singular' }
       ].should be_assorted_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic,
@@ -705,8 +758,8 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       end ; end
     should_have_collec_named_classics    :message, :messages, :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
       verb_keyed_by_action.keys.each do |action|
-        should_be_named_route "/threads/1/messages/#{action}"    , "#{action}_thread_messages"          , :action=>action
-        should_be_named_route "/threads/1/messages/#{action}.xml", "formatted_#{action}_thread_messages", :action=>action, :format=>'xml'
+        should_be_named_route "/threads/1/messages/#{action}"    , "#{action}_thread_messages", :action=>action
+        should_be_named_route "/threads/1/messages/#{action}.xml", "#{action}_thread_messages", :action=>action, :format=>'xml'
       end ; end
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:message,:messages], :provide=>:classic,
       :collection=>verb_keyed_by_action, :path_prefix=>'/threads/:thread_id', :name_prefix=>'thread_' }
@@ -717,8 +770,8 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       end ; end
     should_have_singleton_named_classics :message,            :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
       verb_keyed_by_action.keys.each do |action|
-        should_be_named_route "/threads/1/messages/#{action}"    , "#{action}_thread_message"           , :action=>action
-        should_be_named_route "/threads/1/messages/#{action}.xml", "formatted_#{action}_thread_message" , :action=>action, :format=>'xml'
+        should_be_named_route "/threads/1/messages/#{action}"    , "#{action}_thread_message" , :action=>action
+        should_be_named_route "/threads/1/messages/#{action}.xml", "#{action}_thread_message" , :action=>action, :format=>'xml'
     end ; end ; end
   it 'correctly raises ArgumentError when given a :member=>{..=>( bad verb )} option' do
     doing { @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources :x                  ,  :provide=>:all    , :member=>{:anything =>:head   } } }.should raise_error(ArgumentError)
@@ -734,25 +787,13 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     it "applies :member=>{..=>#{verb.inspect}} option, to specify additional Member actions for #{verb.to_s.upcase}" do
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :member=>{:z=>verb} }
       exp_route_ar = Array.new(RT.all_route_ar)
-      name_nof = 'z_singular'    ; path_nof = '/plural/:id/z'
-      exp_route_ar.insert_above(RT.classic_show,
-        { :name=>name_nof               , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"formatted_#{name_nof}", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
-      name_nof = 'singular_id_z' ; path_nof = '/singular/:id/z'
-      exp_route_ar.insert_above(RT.restful_show,
-        { :name=>name_nof       , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"#{name_nof}_f", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
+      exp_route_ar.insert_above(RT.classic_show, { :name=>'z_singular'    , :verb=>verb.to_s.upcase, :path=>'/plural/:id/z(.:format)'   , :action=>'z', :controller=>'singular' } )
+      exp_route_ar.insert_above(RT.restful_show, { :name=>'singular_id_z' , :verb=>verb.to_s.upcase, :path=>'/singular/:id/z(.:format)' , :action=>'z', :controller=>'singular' } )
       exp_route_ar.should be_exact_routes
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :member=>{:z=>verb} }
       exp_route_ar = Array.new(RT.s_all_route_ar)
-      name_nof = 'z_singular'    ; path_nof = '/singular/z'
-      exp_route_ar.insert_above(RT.s_classic_show,
-        { :name=>name_nof               , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"formatted_#{name_nof}", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
-      name_nof = 'singular_z'    ; path_nof = '/singular/z'
-      exp_route_ar.insert_above(RT.s_restful_show,
-        { :name=>name_nof       , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"#{name_nof}_f", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
+      exp_route_ar.insert_above(RT.s_classic_show, { :name=>'z_singular' , :verb=>verb.to_s.upcase, :path=>'/singular/z(.:format)' , :action=>'z', :controller=>'singular' } )
+      exp_route_ar.insert_above(RT.s_restful_show, { :name=>'singular_z' , :verb=>verb.to_s.upcase, :path=>'/singular/z(.:format)' , :action=>'z', :controller=>'singular' } )
       exp_route_ar.should be_exact_routes
 
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :member=>{:mark=>verb} }
@@ -774,27 +815,15 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       exp_route_ar = RT.all_route_ar.collect {|orig_r| r = orig_r.dup
         r[:path] = r[:path].gsub(/\/new/,'/nuevo')
         r }
-      name_nof = 'z_singular' ; path_nof = '/plural/:id/z'
-      exp_route_ar.insert_above(RT.classic_show,
-        { :name=>name_nof               , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"formatted_#{name_nof}", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
-      name_nof = 'singular_id_z' ; path_nof = '/singular/:id/z'
-      exp_route_ar.insert_above(RT.restful_show,
-        { :name=>name_nof       , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"#{name_nof}_f", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
+      exp_route_ar.insert_above(RT.classic_show, { :name=>'z_singular'   , :verb=>verb.to_s.upcase, :path=>'/plural/:id/z(.:format)'  , :action=>'z', :controller=>'singular' })
+      exp_route_ar.insert_above(RT.restful_show, { :name=>'singular_id_z', :verb=>verb.to_s.upcase, :path=>'/singular/:id/z(.:format)', :action=>'z', :controller=>'singular' })
       exp_route_ar.should be_exact_routes
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :member=>{:z=>verb}, :path_names=>{:new=>'nuevo'} }
       exp_route_ar = RT.s_all_route_ar.collect {|orig_r| r = orig_r.dup
         r[:path] = r[:path].gsub(/\/new/,'/nuevo')
         r }
-      name_nof = 'z_singular' ; path_nof = '/singular/z'
-      exp_route_ar.insert_above(RT.s_classic_show,
-        { :name=>name_nof               , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"formatted_#{name_nof}", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
-      name_nof = 'singular_z'    ; path_nof = '/singular/z'
-      exp_route_ar.insert_above(RT.s_restful_show,
-        { :name=>name_nof       , :verb=>verb.to_s.upcase, :path=>path_nof             , :action=>'z', :controller=>'singular' },
-        { :name=>"#{name_nof}_f", :verb=>verb.to_s.upcase, :path=>"#{path_nof}.:format", :action=>'z', :controller=>'singular' })
+      exp_route_ar.insert_above(RT.s_classic_show, { :name=>'z_singular' , :verb=>verb.to_s.upcase, :path=>'/singular/z(.:format)', :action=>'z', :controller=>'singular' })
+      exp_route_ar.insert_above(RT.s_restful_show, { :name=>'singular_z' , :verb=>verb.to_s.upcase, :path=>'/singular/z(.:format)', :action=>'z', :controller=>'singular' })
       exp_route_ar.should be_exact_routes
 
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :member=>{:mark=>verb}, :path_names=>{:new=>'nuevo'} }
@@ -814,37 +843,29 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     it "accepts two member actions to the same HTTP #{verb.to_s.upcase} verb" do
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :member=>{:z=>verb,:y=>verb} }
       exp_route_ar = Array.new(RT.all_route_ar)
-      exp_route_ar.insert_above(RT.classic_show,nil,nil,nil,nil) # Classic y.. and z.. go here.
-      exp_route_ar.insert_above(RT.restful_show,nil,nil,nil,nil) # Restful ..y and ..z go here.
+      exp_route_ar.insert_above(RT.classic_show,nil,nil) # Classic y.. and z.. go here.
+      exp_route_ar.insert_above(RT.restful_show,nil,nil) # Restful ..y and ..z go here.
       exp_route_ar.should be_exact_routes
       name_right = '_singular' ; path_left = '/plural/:id/'
-      [ { :name=>          "y#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}y"        , :action=>'y', :controller=>'singular' },
-        { :name=>"formatted_y#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}y.:format", :action=>'y', :controller=>'singular' },
-        { :name=>          "z#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}z"        , :action=>'z', :controller=>'singular' },
-        { :name=>"formatted_z#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}z.:format", :action=>'z', :controller=>'singular' }
+      [ { :name=>"y#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}y(.:format)", :action=>'y', :controller=>'singular' },
+        { :name=>"z#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}z(.:format)", :action=>'z', :controller=>'singular' }
         ].should be_assorted_routes # Since the :member option takes a hash, its sequence is undefined.
       name_left = 'singular_id_' ; path_left = '/singular/:id/'
-      [ { :name=>"#{name_left}y"           , :verb=>verb.to_s.upcase, :path=>"#{path_left}y"        , :action=>'y', :controller=>'singular' },
-        { :name=>"#{name_left}y_f"         , :verb=>verb.to_s.upcase, :path=>"#{path_left}y.:format", :action=>'y', :controller=>'singular' },
-        { :name=>"#{name_left}z"           , :verb=>verb.to_s.upcase, :path=>"#{path_left}z"        , :action=>'z', :controller=>'singular' },
-        { :name=>"#{name_left}z_f"         , :verb=>verb.to_s.upcase, :path=>"#{path_left}z.:format", :action=>'z', :controller=>'singular' }
+      [ { :name=>"#{name_left}y" , :verb=>verb.to_s.upcase, :path=>"#{path_left}y(.:format)", :action=>'y', :controller=>'singular' },
+        { :name=>"#{name_left}z" , :verb=>verb.to_s.upcase, :path=>"#{path_left}z(.:format)", :action=>'z', :controller=>'singular' }
         ].should be_assorted_routes
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :member=>{:z=>verb,:y=>verb} }
       exp_route_ar = Array.new(RT.s_all_route_ar)
-      exp_route_ar.insert_above(RT.s_classic_show,nil,nil,nil,nil) # Classic y.. and z.. go here.
-      exp_route_ar.insert_above(RT.s_restful_show,nil,nil,nil,nil) # Restful ..y and ..z go here.
+      exp_route_ar.insert_above(RT.s_classic_show,nil,nil) # Classic y.. and z.. go here.
+      exp_route_ar.insert_above(RT.s_restful_show,nil,nil) # Restful ..y and ..z go here.
       exp_route_ar.should be_exact_routes
       name_right = '_singular' ; path_left = '/singular/'
-      [ { :name=>          "y#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}y"        , :action=>'y', :controller=>'singular' },
-        { :name=>"formatted_y#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}y.:format", :action=>'y', :controller=>'singular' },
-        { :name=>          "z#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}z"        , :action=>'z', :controller=>'singular' },
-        { :name=>"formatted_z#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}z.:format", :action=>'z', :controller=>'singular' }
+      [ { :name=>"y#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}y(.:format)", :action=>'y', :controller=>'singular' },
+        { :name=>"z#{name_right}", :verb=>verb.to_s.upcase, :path=>"#{path_left}z(.:format)", :action=>'z', :controller=>'singular' }
         ].should be_assorted_routes # Since the :member option takes a hash, its sequence is undefined.
       name_left = 'singular_' ; path_left = '/singular/'
-      [ { :name=>"#{name_left}y"           , :verb=>verb.to_s.upcase, :path=>"#{path_left}y"        , :action=>'y', :controller=>'singular' },
-        { :name=>"#{name_left}y_f"         , :verb=>verb.to_s.upcase, :path=>"#{path_left}y.:format", :action=>'y', :controller=>'singular' },
-        { :name=>"#{name_left}z"           , :verb=>verb.to_s.upcase, :path=>"#{path_left}z"        , :action=>'z', :controller=>'singular' },
-        { :name=>"#{name_left}z_f"         , :verb=>verb.to_s.upcase, :path=>"#{path_left}z.:format", :action=>'z', :controller=>'singular' }
+      [ { :name=>"#{name_left}y" , :verb=>verb.to_s.upcase, :path=>"#{path_left}y(.:format)", :action=>'y', :controller=>'singular' },
+        { :name=>"#{name_left}z" , :verb=>verb.to_s.upcase, :path=>"#{path_left}z(.:format)", :action=>'z', :controller=>'singular' }
         ].should be_assorted_routes
 
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :member=>{:mark=>verb,:unmark=>verb} }
@@ -873,45 +894,33 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     # In outlaw_resource() :collection and :member both behave as if they were :member (no :id field).
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :collection=>{:a=>[:get,:post]}, :member=>{:z=>[:post,:get]} }
     exp_route_ar = Array.new(RT.all_route_ar)
-    exp_route_ar.insert_above(RT.classic_index,nil,nil,nil,nil) # Classic a.. routes
-    exp_route_ar.insert_above(RT.classic_show ,nil,nil,nil,nil) # Classic z.. routes
-    exp_route_ar.insert_above(RT.restful_index,nil,nil,nil,nil) # RESTful a.. routes
-    exp_route_ar.insert_above(RT.restful_show ,nil,nil,nil,nil) # RESTful z.. routes
+    exp_route_ar.insert_above(RT.classic_index,nil,nil) # Classic a.. routes
+    exp_route_ar.insert_above(RT.classic_show ,nil,nil) # Classic z.. routes
+    exp_route_ar.insert_above(RT.restful_index,nil,nil) # RESTful a.. routes
+    exp_route_ar.insert_above(RT.restful_show ,nil,nil) # RESTful z.. routes
     exp_route_ar.should be_exact_routes
-    [ { :name=>                    "", :verb=>'POST', :path=>"/plural/a"              , :action=>'a', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/plural/a.:format"      , :action=>'a', :controller=>'singular' },
-      { :name=>            "a_plural", :verb=>'GET' , :path=>"/plural/a"              , :action=>'a', :controller=>'singular' },
-      { :name=>  "formatted_a_plural", :verb=>'GET' , :path=>"/plural/a.:format"      , :action=>'a', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/plural/:id/z"          , :action=>'z', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/plural/:id/z.:format"  , :action=>'z', :controller=>'singular' },
-      { :name=>          "z_singular", :verb=>'GET' , :path=>"/plural/:id/z"          , :action=>'z', :controller=>'singular' },
-      { :name=>"formatted_z_singular", :verb=>'GET' , :path=>"/plural/:id/z.:format"  , :action=>'z', :controller=>'singular' },
-      { :name=>"singular_a"          , :verb=>'GET' , :path=>"/singular/a"            , :action=>'a', :controller=>'singular' },
-      { :name=>"singular_a_f"        , :verb=>'GET' , :path=>"/singular/a.:format"    , :action=>'a', :controller=>'singular' },
-      { :name=>""                    , :verb=>'POST', :path=>"/singular/a"            , :action=>'a', :controller=>'singular' },
-      { :name=>""                    , :verb=>'POST', :path=>"/singular/a.:format"    , :action=>'a', :controller=>'singular' },
-      { :name=>"singular_id_z"       , :verb=>'GET' , :path=>"/singular/:id/z"        , :action=>'z', :controller=>'singular' },
-      { :name=>"singular_id_z_f"     , :verb=>'GET' , :path=>"/singular/:id/z.:format", :action=>'z', :controller=>'singular' },
-      { :name=>""                    , :verb=>'POST', :path=>"/singular/:id/z"        , :action=>'z', :controller=>'singular' },
-      { :name=>""                    , :verb=>'POST', :path=>"/singular/:id/z.:format", :action=>'z', :controller=>'singular' }
+    [ { :name=>          ""   , :verb=>'POST', :path=>"/plural/a(.:format)"      , :action=>'a', :controller=>'singular' },
+      { :name=>  "a_plural"   , :verb=>'GET' , :path=>"/plural/a(.:format)"      , :action=>'a', :controller=>'singular' },
+      { :name=>          ""   , :verb=>'POST', :path=>"/plural/:id/z(.:format)"  , :action=>'z', :controller=>'singular' },
+      { :name=>"z_singular"   , :verb=>'GET' , :path=>"/plural/:id/z(.:format)"  , :action=>'z', :controller=>'singular' },
+      { :name=>"singular_a"   , :verb=>'GET' , :path=>"/singular/a(.:format)"    , :action=>'a', :controller=>'singular' },
+      { :name=>""             , :verb=>'POST', :path=>"/singular/a(.:format)"    , :action=>'a', :controller=>'singular' },
+      { :name=>"singular_id_z", :verb=>'GET' , :path=>"/singular/:id/z(.:format)", :action=>'z', :controller=>'singular' },
+      { :name=>""             , :verb=>'POST', :path=>"/singular/:id/z(.:format)", :action=>'z', :controller=>'singular' }
       ].should be_assorted_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :collection=>{:a=>[:get,:post]}, :member=>{:z=>[:post,:get]} }
     exp_route_ar = Array.new(RT.s_all_route_ar)
-    exp_route_ar.insert_above(RT.s_classic_show,nil,nil,nil,nil,nil,nil,nil,nil) # For a singleton resource, :collection is combined into :member .
-    exp_route_ar.insert_above(RT.s_restful_show,nil,nil,nil,nil)                 # Same here, but the four anonymous routes are identical to others.
+    exp_route_ar.insert_above(RT.s_classic_show,nil,nil,nil,nil) # For a singleton resource, :collection is combined into :member .
+    exp_route_ar.insert_above(RT.s_restful_show,nil,nil)         # Same here, but the two anonymous routes ore identical to others.
     exp_route_ar.should be_exact_routes
-    [ { :name=>          "a_singular", :verb=>'GET' , :path=>"/singular/a"        , :action=>'a', :controller=>'singular' },
-      { :name=>"formatted_a_singular", :verb=>'GET' , :path=>"/singular/a.:format", :action=>'a', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/singular/a"        , :action=>'a', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/singular/a.:format", :action=>'a', :controller=>'singular' },
-      { :name=>          "z_singular", :verb=>'GET' , :path=>"/singular/z"        , :action=>'z', :controller=>'singular' },
-      { :name=>"formatted_z_singular", :verb=>'GET' , :path=>"/singular/z.:format", :action=>'z', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/singular/z"        , :action=>'z', :controller=>'singular' },
-      { :name=>                    "", :verb=>'POST', :path=>"/singular/z.:format", :action=>'z', :controller=>'singular' },
-      { :name=>"singular_a"          , :verb=>'GET' , :path=>"/singular/a"        , :action=>'a', :controller=>'singular' },
-      { :name=>"singular_a_f"        , :verb=>'GET' , :path=>"/singular/a.:format", :action=>'a', :controller=>'singular' },
-      { :name=>"singular_z"          , :verb=>'GET' , :path=>"/singular/z"        , :action=>'z', :controller=>'singular' },
-      { :name=>"singular_z_f"        , :verb=>'GET' , :path=>"/singular/z.:format", :action=>'z', :controller=>'singular' }
+    [ { :name=>          "", :verb=>'POST', :path=>"/singular/a(.:format)", :action=>'a', :controller=>'singular' },
+      { :name=>"a_singular", :verb=>'GET' , :path=>"/singular/a(.:format)", :action=>'a', :controller=>'singular' },
+      { :name=>          "", :verb=>'POST', :path=>"/singular/z(.:format)", :action=>'z', :controller=>'singular' },
+      { :name=>"z_singular", :verb=>'GET' , :path=>"/singular/z(.:format)", :action=>'z', :controller=>'singular' },
+      { :name=>"singular_a", :verb=>'GET' , :path=>"/singular/a(.:format)", :action=>'a', :controller=>'singular' },
+      { :name=>""          , :verb=>'POST', :path=>"/singular/a(.:format)", :action=>'a', :controller=>'singular' },
+      { :name=>"singular_z", :verb=>'GET' , :path=>"/singular/z(.:format)", :action=>'z', :controller=>'singular' },
+      { :name=>""          , :verb=>'POST', :path=>"/singular/z(.:format)", :action=>'z', :controller=>'singular' }
       ].should be_assorted_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :collection=>{:search=>:any}, :member=>{:toggle=>:any} }
@@ -959,29 +968,21 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
   it 'applies :new=>{..=>:post} option to route HTTP POST to additional New actions' do
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :new=>{:n=>:post} }
     exp_route_ar = Array.new(RT.all_route_ar)
-    exp_route_ar.insert_above(RT.classic_show,nil,nil).insert_above(RT.pretty_create,nil,nil).nil_out_at(RT.classic_new,RT.classic_new_f,RT.restful_new,RT.restful_new_f)
+    exp_route_ar.insert_above(RT.classic_show,nil).insert_above(RT.pretty_create,nil).nil_out_at(RT.classic_new, RT.restful_new)
     exp_route_ar.should be_exact_routes
-    [ { :name=>            "new_singular", :verb=>'GET' , :path=>"/plural/new"            , :action=>'new', :controller=>'singular' },
-      { :name=>  "formatted_new_singular", :verb=>'GET' , :path=>"/plural/new.:format"    , :action=>'new', :controller=>'singular' },
-      { :name=>          "n_new_singular", :verb=>'POST', :path=>"/plural/new/n"          , :action=>'n'  , :controller=>'singular' },
-      { :name=>"formatted_n_new_singular", :verb=>'POST', :path=>"/plural/new/n.:format"  , :action=>'n'  , :controller=>'singular' },
-      { :name=>"singular_new"            , :verb=>'GET' , :path=>"/singular/new"          , :action=>'new', :controller=>'singular' },
-      { :name=>"singular_new_f"          , :verb=>'GET' , :path=>"/singular/new.:format"  , :action=>'new', :controller=>'singular' },
-      { :name=>"singular_new_n"          , :verb=>'POST', :path=>"/singular/new/n"        , :action=>'n'  , :controller=>'singular' },
-      { :name=>"singular_new_n_f"        , :verb=>'POST', :path=>"/singular/new/n.:format", :action=>'n'  , :controller=>'singular' }
+    [ { :name=>  "new_singular", :verb=>'GET' , :path=>"/plural/new(.:format)"    , :action=>'new', :controller=>'singular' },
+      { :name=>"n_new_singular", :verb=>'POST', :path=>"/plural/new/n(.:format)"  , :action=>'n'  , :controller=>'singular' },
+      { :name=>"singular_new"  , :verb=>'GET' , :path=>"/singular/new(.:format)"  , :action=>'new', :controller=>'singular' },
+      { :name=>"singular_new_n", :verb=>'POST', :path=>"/singular/new/n(.:format)", :action=>'n'  , :controller=>'singular' }
       ].should be_assorted_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :new=>{:n=>:post} }
     exp_route_ar = Array.new(RT.s_all_route_ar)
-    exp_route_ar.insert_above(RT.s_classic_show,nil,nil).insert_above(RT.s_pretty_create,nil,nil).nil_out_at(RT.s_classic_new,RT.s_classic_new_f,RT.s_restful_new,RT.s_restful_new_f)
+    exp_route_ar.insert_above(RT.s_classic_show,nil).insert_above(RT.s_pretty_create,nil).nil_out_at(RT.s_classic_new,RT.s_restful_new)
     exp_route_ar.should be_exact_routes
-    [ { :name=>            "new_singular", :verb=>'GET' , :path=>"/singular/new"          , :action=>'new', :controller=>'singular' },
-      { :name=>  "formatted_new_singular", :verb=>'GET' , :path=>"/singular/new.:format"  , :action=>'new', :controller=>'singular' },
-      { :name=>          "n_new_singular", :verb=>'POST', :path=>"/singular/new/n"        , :action=>'n'  , :controller=>'singular' },
-      { :name=>"formatted_n_new_singular", :verb=>'POST', :path=>"/singular/new/n.:format", :action=>'n'  , :controller=>'singular' },
-      { :name=>"singular_new"            , :verb=>'GET' , :path=>"/singular/new"          , :action=>'new', :controller=>'singular' },
-      { :name=>"singular_new_f"          , :verb=>'GET' , :path=>"/singular/new.:format"  , :action=>'new', :controller=>'singular' },
-      { :name=>"singular_new_n"          , :verb=>'POST', :path=>"/singular/new/n"        , :action=>'n'  , :controller=>'singular' },
-      { :name=>"singular_new_n_f"        , :verb=>'POST', :path=>"/singular/new/n.:format", :action=>'n'  , :controller=>'singular' }
+    [ { :name=>  "new_singular", :verb=>'GET' , :path=>"/singular/new(.:format)"  , :action=>'new', :controller=>'singular' },
+      { :name=>"n_new_singular", :verb=>'POST', :path=>"/singular/new/n(.:format)", :action=>'n'  , :controller=>'singular' },
+      { :name=>"singular_new"  , :verb=>'GET' , :path=>"/singular/new(.:format)"  , :action=>'new', :controller=>'singular' },
+      { :name=>"singular_new_n", :verb=>'POST', :path=>"/singular/new/n(.:format)", :action=>'n'  , :controller=>'singular' }
       ].should be_assorted_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :new=>{:preview=>:post} }
@@ -1000,80 +1001,62 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
   it 'applies :name_prefix , :path_prefix , and :new=>{..=>:post} options together' do
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :new=>{:n=>:post}, :path_prefix=>'/path_prefix/:path_prefix_id', :name_prefix=>'name_prefix_' }
     exp_route_ar = Array.new(RT.all_route_ar)
-    exp_route_ar.insert_above(RT.classic_show,nil,nil).insert_above(RT.pretty_create,nil,nil).nil_out_at(RT.classic_new,RT.classic_new_f,RT.restful_new,RT.restful_new_f)
+    exp_route_ar.insert_above(RT.classic_show,nil).insert_above(RT.pretty_create,nil).nil_out_at(RT.classic_new,RT.restful_new)
     exp_route_ar = exp_route_ar.collect {|orig_r| next if orig_r.nil?
       r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'name_prefix_singular').gsub(/plural/,'name_prefix_plural')
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }
     exp_route_ar.should be_exact_routes
-    [ { :name=>            "new_name_prefix_singular", :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/plural/new"            , :action=>'new', :controller=>'singular' },
-      { :name=>  "formatted_new_name_prefix_singular", :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/plural/new.:format"    , :action=>'new', :controller=>'singular' },
-      { :name=>          "n_new_name_prefix_singular", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/plural/new/n"          , :action=>'n'  , :controller=>'singular' },
-      { :name=>"formatted_n_new_name_prefix_singular", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/plural/new/n.:format"  , :action=>'n'  , :controller=>'singular' },
-      { :name=>"name_prefix_singular_new"            , :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new"          , :action=>'new', :controller=>'singular' },
-      { :name=>"name_prefix_singular_new_f"          , :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new.:format"  , :action=>'new', :controller=>'singular' },
-      { :name=>"name_prefix_singular_new_n"          , :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n"        , :action=>'n'  , :controller=>'singular' },
-      { :name=>"name_prefix_singular_new_n_f"        , :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n.:format", :action=>'n'  , :controller=>'singular' }
+    [ { :name=>  "new_name_prefix_singular", :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/plural/new(.:format)"    , :action=>'new', :controller=>'singular' },
+      { :name=>"n_new_name_prefix_singular", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/plural/new/n(.:format)"  , :action=>'n'  , :controller=>'singular' },
+      { :name=>"name_prefix_singular_new"  , :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new(.:format)"  , :action=>'new', :controller=>'singular' },
+      { :name=>"name_prefix_singular_new_n", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n(.:format)", :action=>'n'  , :controller=>'singular' }
       ].should be_assorted_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :new=>{:n=>:post}, :path_prefix=>'/path_prefix/:path_prefix_id', :name_prefix=>'name_prefix_' }
     exp_route_ar = Array.new(RT.s_all_route_ar)
-    exp_route_ar.insert_above(RT.s_classic_show,nil,nil).insert_above(RT.s_pretty_create,nil,nil).nil_out_at(RT.s_classic_new,RT.s_classic_new_f,RT.s_restful_new,RT.s_restful_new_f)
+    exp_route_ar.insert_above(RT.s_classic_show,nil).insert_above(RT.s_pretty_create,nil).nil_out_at(RT.s_classic_new,RT.s_restful_new)
     exp_route_ar = exp_route_ar.collect {|orig_r| next if orig_r.nil?
       r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'name_prefix_singular')
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }
     exp_route_ar.should be_exact_routes
-    [ { :name=>            "new_name_prefix_singular", :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new"          , :action=>'new', :controller=>'singular' },
-      { :name=>  "formatted_new_name_prefix_singular", :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new.:format"  , :action=>'new', :controller=>'singular' },
-      { :name=>          "n_new_name_prefix_singular", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n"        , :action=>'n'  , :controller=>'singular' },
-      { :name=>"formatted_n_new_name_prefix_singular", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n.:format", :action=>'n'  , :controller=>'singular' },
-      { :name=>"name_prefix_singular_new"            , :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new"          , :action=>'new', :controller=>'singular' },
-      { :name=>"name_prefix_singular_new_f"          , :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new.:format"  , :action=>'new', :controller=>'singular' },
-      { :name=>"name_prefix_singular_new_n"          , :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n"        , :action=>'n'  , :controller=>'singular' },
-      { :name=>"name_prefix_singular_new_n_f"        , :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n.:format", :action=>'n'  , :controller=>'singular' }
+    [ { :name=>  "new_name_prefix_singular", :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new(.:format)"  , :action=>'new', :controller=>'singular' },
+      { :name=>"n_new_name_prefix_singular", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n(.:format)", :action=>'n'  , :controller=>'singular' },
+      { :name=>"name_prefix_singular_new"  , :verb=>'GET' , :path=>"/path_prefix/:path_prefix_id/singular/new(.:format)"  , :action=>'new', :controller=>'singular' },
+      { :name=>"name_prefix_singular_new_n", :verb=>'POST', :path=>"/path_prefix/:path_prefix_id/singular/new/n(.:format)", :action=>'n'  , :controller=>'singular' }
       ].should be_assorted_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:message,:messages], :provide=>:classic, :new=>{:preview=>:post}, :path_prefix=>'/threads/:thread_id', :name_prefix=>'thread_' }
-    nof_preview_path = '/threads/1/messages/new/preview' ; nof_preview_options = {:action=>'preview', :thread_id=>'1'}
-    f_preview_path = nof_preview_path+'.xml' ; f_preview_options = nof_preview_options.merge({:format=>'xml'})
+    preview_path = '/threads/1/messages/new/preview' ; preview_options = {:action=>'preview', :thread_id=>'1'}
     should_have_collec_refer_classics    :message, :messages, :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
-      should_recognize options.merge(nof_preview_options), :path=>nof_preview_path, :method=>:post
-      should_recognize options.merge(  f_preview_options), :path=>  f_preview_path, :method=>:post
+      should_recognize options.merge(preview_options)                      , :path=>preview_path         , :method=>:post
+      should_recognize options.merge(preview_options).merge(:format=>'xml'), :path=>"#{preview_path}.xml", :method=>:post
       end
     should_have_collec_named_classics    :message, :messages, :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
-      should_be_named_route nof_preview_path,           :preview_new_thread_message, nof_preview_options
-      should_be_named_route   f_preview_path, :formatted_preview_new_thread_message,   f_preview_options
+      should_be_named_route preview_path         , :preview_new_thread_message, preview_options
+      should_be_named_route "#{preview_path}.xml", :preview_new_thread_message, preview_options.merge(:format=>'xml')
       end
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:message,:messages], :provide=>:classic, :new=>{:preview=>:post}, :path_prefix=>'/threads/:thread_id', :name_prefix=>'thread_' }
-    nof_preview_path = '/threads/1/message/new/preview'  ; nof_preview_options = {:action=>'preview', :thread_id=>'1'}
-    f_preview_path = nof_preview_path+'.xml' ; f_preview_options = nof_preview_options.merge({:format=>'xml'})
-    should_have_singleton_refer_classics :message,            :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
-      should_recognize options.merge(nof_preview_options), :path=>nof_preview_path, :method=>:post
-      should_recognize options.merge(  f_preview_options), :path=>  f_preview_path, :method=>:post
+    preview_path = '/threads/1/message/new/preview'  ; preview_options = {:action=>'preview', :thread_id=>'1'}
+    should_have_singleton_refer_classics :message, :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
+      should_recognize options.merge(preview_options)                      , :path=>preview_path         , :method=>:post
+      should_recognize options.merge(preview_options).merge(:format=>'xml'), :path=>"#{preview_path}.xml", :method=>:post
       end
-    should_have_singleton_named_classics :message,            :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
-      should_be_named_route nof_preview_path,           :preview_new_thread_message, nof_preview_options
-      should_be_named_route   f_preview_path, :formatted_preview_new_thread_message,   f_preview_options
+    should_have_singleton_named_classics :message, :path_prefix=>'threads/1/', :name_prefix=>'thread_', :options=>{:thread_id=>'1'} do |options|
+      should_be_named_route preview_path         , :preview_new_thread_message, preview_options
+      should_be_named_route "#{preview_path}.xml", :preview_new_thread_message, preview_options.merge(:format=>'xml')
       end
     end
   it 'applies :name_prefix , :path_prefix , :collection , and :new options together' do
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all,
       :name_prefix=>'thread_', :path_prefix=>'thread/:thread_id', :collection=>{:search=>:get}, :new=>{:preview=>:any} }
     exp_route_ar = Array.new(RT.all_route_ar)
-    exp_route_ar.insert_above(RT.classic_index,
-      { :name=>"search_plural"                   , :verb=>'GET', :path=>"/plural/search"               , :action=>'search' , :controller=>'singular' },
-      { :name=>"formatted_search_plural"         , :verb=>'GET', :path=>"/plural/search.:format"       , :action=>'search' , :controller=>'singular' })
-    exp_route_ar.insert_above(RT.classic_show ,
-      { :name=>"preview_new_singular"            , :verb=>''   , :path=>"/plural/new/preview"          , :action=>'preview', :controller=>'singular' },
-      { :name=>"formatted_preview_new_singular"  , :verb=>''   , :path=>"/plural/new/preview.:format"  , :action=>'preview', :controller=>'singular' })
-    exp_route_ar.insert_above(RT.restful_index,
-      { :name=>"singular_search"                 , :verb=>'GET', :path=>"/singular/search"             , :action=>'search' , :controller=>'singular' },
-      { :name=>"singular_search_f"               , :verb=>'GET', :path=>"/singular/search.:format"     , :action=>'search' , :controller=>'singular' })
-    exp_route_ar.insert_above(RT.pretty_create,
-      { :name=>"singular_new_preview"            , :verb=>''   , :path=>"/singular/new/preview"        , :action=>'preview', :controller=>'singular' },
-      { :name=>"singular_new_preview_f"          , :verb=>''   , :path=>"/singular/new/preview.:format", :action=>'preview', :controller=>'singular' })
+    exp_route_ar.insert_above(RT.classic_index, { :name=>"search_plural"                   , :verb=>'GET', :path=>"/plural/search(.:format)"       , :action=>'search' , :controller=>'singular' })
+    exp_route_ar.insert_above(RT.classic_show , { :name=>"preview_new_singular"            , :verb=>''   , :path=>"/plural/new/preview(.:format)"  , :action=>'preview', :controller=>'singular' })
+    exp_route_ar.insert_above(RT.restful_index, { :name=>"singular_search"                 , :verb=>'GET', :path=>"/singular/search(.:format)"     , :action=>'search' , :controller=>'singular' })
+    exp_route_ar.insert_above(RT.pretty_create, { :name=>"singular_new_preview"            , :verb=>''   , :path=>"/singular/new/preview(.:format)", :action=>'preview', :controller=>'singular' })
     exp_route_ar.collect! {|orig_r| next if orig_r.nil?
       r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'thread_singular').gsub(/plural/,'thread_plural')
@@ -1084,16 +1067,12 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       :name_prefix=>'thread_', :path_prefix=>'thread/:thread_id', :collection=>{:search=>:get}, :new=>{:preview=>:any} }
     exp_route_ar = Array.new(RT.s_all_route_ar)
     exp_route_ar.insert_above(RT.s_classic_show ,
-      { :name=>"preview_new_singular"            , :verb=>''   , :path=>"/singular/new/preview"        , :action=>'preview', :controller=>'singular' },
-      { :name=>"formatted_preview_new_singular"  , :verb=>''   , :path=>"/singular/new/preview.:format", :action=>'preview', :controller=>'singular' },
-      { :name=>"search_singular"                 , :verb=>'GET', :path=>"/singular/search"             , :action=>'search' , :controller=>'singular' },
-      { :name=>"formatted_search_singular"       , :verb=>'GET', :path=>"/singular/search.:format"     , :action=>'search' , :controller=>'singular' })
-    exp_route_ar.insert_above(RT.s_pretty_create,
-      { :name=>"singular_new_preview"            , :verb=>''   , :path=>"/singular/new/preview"        , :action=>'preview', :controller=>'singular' },
-      { :name=>"singular_new_preview_f"          , :verb=>''   , :path=>"/singular/new/preview.:format", :action=>'preview', :controller=>'singular' })
+      { :name=>"preview_new_singular" , :verb=>''   , :path=>"/singular/new/preview(.:format)", :action=>'preview', :controller=>'singular' },
+      { :name=>"search_singular"      , :verb=>'GET', :path=>"/singular/search(.:format)"     , :action=>'search' , :controller=>'singular' })
     exp_route_ar.insert_above(RT.s_restful_show ,
-      { :name=>"singular_search"                 , :verb=>'GET', :path=>"/singular/search"             , :action=>'search' , :controller=>'singular' },
-      { :name=>"singular_search_f"               , :verb=>'GET', :path=>"/singular/search.:format"     , :action=>'search' , :controller=>'singular' })
+      { :name=>"singular_search"      , :verb=>'GET', :path=>"/singular/search(.:format)"     , :action=>'search' , :controller=>'singular' })
+    exp_route_ar.insert_above(RT.s_pretty_create,
+      { :name=>"singular_new_preview" , :verb=>''   , :path=>"/singular/new/preview(.:format)", :action=>'preview', :controller=>'singular' })
     exp_route_ar.collect! {|orig_r| next if orig_r.nil?
       r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'thread_singular')
@@ -1118,9 +1097,9 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:account,:accounts], :provide=>:all,
       :name_prefix=>'admin_', :path_prefix=>'admin', :member=>{:login=>:get}, :new=>{:preview=>:any} }
     exp_route_ar = Array.new(RT.all_route_ar)
-    exp_route_ar.insert_above(RT.classic_show ,nil,nil,nil,nil)
-    exp_route_ar.insert_above(RT.pretty_create,nil,nil)
-    exp_route_ar.insert_above(RT.restful_show ,nil,nil)
+    exp_route_ar.insert_above(RT.classic_show ,nil,nil)
+    exp_route_ar.insert_above(RT.pretty_create,nil)
+    exp_route_ar.insert_above(RT.restful_show ,nil)
     exp_route_ar.collect! {|orig_r| next if orig_r.nil?
       r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'admin_account').gsub(/plural/,'admin_accounts')
@@ -1128,21 +1107,17 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       r[:controller] = 'account'
       r }
     exp_route_ar.should be_exact_routes
-    [ { :name=>          "preview_new_admin_account", :verb=>''   , :path=>"/admin/accounts/new/preview"        , :action=>'preview', :controller=>'account' },
-      { :name=>"formatted_preview_new_admin_account", :verb=>''   , :path=>"/admin/accounts/new/preview.:format", :action=>'preview', :controller=>'account' },
-      { :name=>                "login_admin_account", :verb=>'GET', :path=>"/admin/accounts/:id/login"          , :action=>'login'  , :controller=>'account' },
-      { :name=>      "formatted_login_admin_account", :verb=>'GET', :path=>"/admin/accounts/:id/login.:format"  , :action=>'login'  , :controller=>'account' },
-      { :name=>"admin_account_new_preview"          , :verb=>''   , :path=>"/admin/account/new/preview"         , :action=>'preview', :controller=>'account' },
-      { :name=>"admin_account_new_preview_f"        , :verb=>''   , :path=>"/admin/account/new/preview.:format" , :action=>'preview', :controller=>'account' },
-      { :name=>"admin_account_id_login"             , :verb=>'GET', :path=>"/admin/account/:id/login"           , :action=>'login'  , :controller=>'account' },
-      { :name=>"admin_account_id_login_f"           , :verb=>'GET', :path=>"/admin/account/:id/login.:format"   , :action=>'login'  , :controller=>'account' }
+    [ { :name=>"preview_new_admin_account", :verb=>''   , :path=>"/admin/accounts/new/preview(.:format)", :action=>'preview', :controller=>'account' },
+      { :name=>      "login_admin_account", :verb=>'GET', :path=>"/admin/accounts/:id/login(.:format)"  , :action=>'login'  , :controller=>'account' },
+      { :name=>"admin_account_new_preview", :verb=>''   , :path=>"/admin/account/new/preview(.:format)" , :action=>'preview', :controller=>'account' },
+      { :name=>"admin_account_id_login"   , :verb=>'GET', :path=>"/admin/account/:id/login(.:format)"   , :action=>'login'  , :controller=>'account' }
       ].should be_assorted_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:account,:accounts], :provide=>:all,
       :name_prefix=>'admin_', :path_prefix=>'admin', :member=>{:login=>:get}, :new=>{:preview=>:any} }
     exp_route_ar = Array.new(RT.s_all_route_ar)
-    exp_route_ar.insert_above(RT.s_classic_show ,nil,nil,nil,nil)
-    exp_route_ar.insert_above(RT.s_pretty_create,nil,nil)
-    exp_route_ar.insert_above(RT.s_restful_show ,nil,nil)
+    exp_route_ar.insert_above(RT.s_classic_show ,nil,nil)
+    exp_route_ar.insert_above(RT.s_pretty_create,nil)
+    exp_route_ar.insert_above(RT.s_restful_show ,nil)
     exp_route_ar.collect! {|orig_r| next if orig_r.nil?
       r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'admin_account')
@@ -1150,14 +1125,10 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       r[:controller] = 'account'
       r }
     exp_route_ar.should be_exact_routes
-    [ { :name=>          "preview_new_admin_account", :verb=>''   , :path=>"/admin/account/new/preview"        , :action=>'preview', :controller=>'account' },
-      { :name=>"formatted_preview_new_admin_account", :verb=>''   , :path=>"/admin/account/new/preview.:format", :action=>'preview', :controller=>'account' },
-      { :name=>                "login_admin_account", :verb=>'GET', :path=>"/admin/account/login"              , :action=>'login'  , :controller=>'account' },
-      { :name=>      "formatted_login_admin_account", :verb=>'GET', :path=>"/admin/account/login.:format"      , :action=>'login'  , :controller=>'account' },
-      { :name=>"admin_account_new_preview"          , :verb=>''   , :path=>"/admin/account/new/preview"        , :action=>'preview', :controller=>'account' },
-      { :name=>"admin_account_new_preview_f"        , :verb=>''   , :path=>"/admin/account/new/preview.:format", :action=>'preview', :controller=>'account' },
-      { :name=>"admin_account_login"                , :verb=>'GET', :path=>"/admin/account/login"              , :action=>'login'  , :controller=>'account' },
-      { :name=>"admin_account_login_f"              , :verb=>'GET', :path=>"/admin/account/login.:format"      , :action=>'login'  , :controller=>'account' }
+    [ { :name=>"preview_new_admin_account", :verb=>''   , :path=>"/admin/account/new/preview(.:format)", :action=>'preview', :controller=>'account' },
+      { :name=>      "login_admin_account", :verb=>'GET', :path=>"/admin/account/login(.:format)"      , :action=>'login'  , :controller=>'account' },
+      { :name=>"admin_account_new_preview", :verb=>''   , :path=>"/admin/account/new/preview(.:format)", :action=>'preview', :controller=>'account' },
+      { :name=>"admin_account_login"      , :verb=>'GET', :path=>"/admin/account/login(.:format)"      , :action=>'login'  , :controller=>'account' }
       ].should be_assorted_routes
 
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:account,:accounts], :provide=>:classic,
@@ -1178,42 +1149,24 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all,
       :name_prefix=>"name_prefix_", :path_prefix=>'/path_prefix/:path_prefix_id', :collection=>actions, :member=>actions }
     exp_route_ar = Array.new(RT.all_route_ar)
-    exp_route_ar.insert_above(RT.classic_index,
-      { :name=>'a_plural'            , :verb=>'GET', :path=>'/plural/a'              ,:action=>'a', :controller=>'singular' },
-      { :name=>'formatted_a_plural'  , :verb=>'GET', :path=>'/plural/a.:format'      ,:action=>'a', :controller=>'singular' })
-    exp_route_ar.insert_above(RT.classic_show ,
-      { :name=>'a_singular'          , :verb=>'GET', :path=>'/plural/:id/a'          ,:action=>'a', :controller=>'singular' },
-      { :name=>'formatted_a_singular', :verb=>'GET', :path=>'/plural/:id/a.:format'  ,:action=>'a', :controller=>'singular' })
-    exp_route_ar.insert_above(RT.restful_index,
-      { :name=>'singular_a'          , :verb=>'GET', :path=>'/singular/a'            ,:action=>'a', :controller=>'singular' },
-      { :name=>'singular_a_f'        , :verb=>'GET', :path=>'/singular/a.:format'    ,:action=>'a', :controller=>'singular' })
-    exp_route_ar.insert_above(RT.restful_show ,
-      { :name=>'singular_id_a'       , :verb=>'GET', :path=>'/singular/:id/a'        ,:action=>'a', :controller=>'singular' },
-      { :name=>'singular_id_a_f'     , :verb=>'GET', :path=>'/singular/:id/a.:format',:action=>'a', :controller=>'singular' })
+    exp_route_ar.insert_above(RT.classic_index, { :name=>'a_plural'     , :verb=>'GET', :path=>'/plural/a(.:format)'      ,:action=>'a', :controller=>'singular' } )
+    exp_route_ar.insert_above(RT.classic_show , { :name=>'a_singular'   , :verb=>'GET', :path=>'/plural/:id/a(.:format)'  ,:action=>'a', :controller=>'singular' } )
+    exp_route_ar.insert_above(RT.restful_index, { :name=>'singular_a'   , :verb=>'GET', :path=>'/singular/a(.:format)'    ,:action=>'a', :controller=>'singular' } )
+    exp_route_ar.insert_above(RT.restful_show , { :name=>'singular_id_a', :verb=>'GET', :path=>'/singular/:id/a(.:format)',:action=>'a', :controller=>'singular' } )
     exp_route_ar.collect {|orig_r| r = orig_r.dup
       unless r[:name].blank?
-        formatted = r[:name][0..9]=='formatted_'
-        r[:name] = r[:name][10..-1] if formatted
         r[:name] = ( r[:name] =~ /^(new_|edit_|a_)/ ? r[:name].sub(/(new_|edit_|a_)/, "#{$1}name_prefix_") : "name_prefix_#{r[:name]}" )
-        r[:name] = "formatted_#{r[:name]}" if formatted
         end
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }.should be_exact_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all,
       :name_prefix=>"name_prefix_", :path_prefix=>'/path_prefix/:path_prefix_id', :collection=>actions, :member=>actions }
     exp_route_ar = Array.new(RT.s_all_route_ar)
-    exp_route_ar.insert_above(RT.s_classic_show,
-      { :name=>'a_singular'          , :verb=>'GET', :path=>'/singular/a'            ,:action=>'a', :controller=>'singular' },
-      { :name=>'formatted_a_singular', :verb=>'GET', :path=>'/singular/a.:format'    ,:action=>'a', :controller=>'singular' })
-    exp_route_ar.insert_above(RT.s_restful_show,
-      { :name=>'singular_a'          , :verb=>'GET', :path=>'/singular/a'            ,:action=>'a', :controller=>'singular' },
-      { :name=>'singular_a_f'        , :verb=>'GET', :path=>'/singular/a.:format'    ,:action=>'a', :controller=>'singular' })
+    exp_route_ar.insert_above(RT.s_classic_show, { :name=>'a_singular'   , :verb=>'GET', :path=>'/singular/a(.:format)'    ,:action=>'a', :controller=>'singular' } )
+    exp_route_ar.insert_above(RT.s_restful_show, { :name=>'singular_a'   , :verb=>'GET', :path=>'/singular/a(.:format)'    ,:action=>'a', :controller=>'singular' } )
     exp_route_ar.collect {|orig_r| r = orig_r.dup
       unless r[:name].blank?
-        formatted = r[:name][0..9]=='formatted_'
-        r[:name] = r[:name][10..-1] if formatted
         r[:name] = ( r[:name] =~ /^(new_|edit_|a_)/ ? r[:name].sub(/(new_|edit_|a_)/, "#{$1}name_prefix_") : "name_prefix_#{r[:name]}" )
-        r[:name] = "formatted_#{r[:name]}" if formatted
         end
       r[:path] = "/path_prefix/:path_prefix_id#{r[:path]}"
       r }.should be_exact_routes
@@ -1249,24 +1202,15 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
         r[:path].gsub!(/#{orig_a_sep}edit/ ,"#{@a_sep}edit")
         r }
       exp_route_ar.should be_assorted_routes
-      [ { :name=>           'ndel_new_nom_singular', :verb=>'DELETE',:path=>"/p/plural/new#{@a_sep}ndel"         ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=> 'formatted_ndel_new_nom_singular', :verb=>'DELETE',:path=>"/p/plural/new#{@a_sep}ndel.:format" ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=>          'npost_new_nom_singular', :verb=>'POST'  ,:path=>"/p/plural/new#{@a_sep}npost"        ,:action=>'npost',:controller=>'singular' },
-        { :name=>'formatted_npost_new_nom_singular', :verb=>'POST'  ,:path=>"/p/plural/new#{@a_sep}npost.:format",:action=>'npost',:controller=>'singular' },
-        { :name=>           'nput_new_nom_singular', :verb=>'PUT'   ,:path=>"/p/plural/new#{@a_sep}nput"         ,:action=>'nput' ,:controller=>'singular' },
-        { :name=> 'formatted_nput_new_nom_singular', :verb=>'PUT'   ,:path=>"/p/plural/new#{@a_sep}nput.:format" ,:action=>'nput' ,:controller=>'singular' },
-        { :name=>                 'cdel_nom_plural', :verb=>'DELETE',:path=>"/p/plural#{@a_sep}cdel"             ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>       'formatted_cdel_nom_plural', :verb=>'DELETE',:path=>"/p/plural#{@a_sep}cdel.:format"     ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>                 'cget_nom_plural', :verb=>'GET'   ,:path=>"/p/plural#{@a_sep}cget"             ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>       'formatted_cget_nom_plural', :verb=>'GET'   ,:path=>"/p/plural#{@a_sep}cget.:format"     ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>                 'cput_nom_plural', :verb=>'PUT'   ,:path=>"/p/plural#{@a_sep}cput"             ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>       'formatted_cput_nom_plural', :verb=>'PUT'   ,:path=>"/p/plural#{@a_sep}cput.:format"     ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>               'mdel_nom_singular', :verb=>'DELETE',:path=>"/p/plural/:id#{@a_sep}mdel"         ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>     'formatted_mdel_nom_singular', :verb=>'DELETE',:path=>"/p/plural/:id#{@a_sep}mdel.:format" ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>               'mget_nom_singular', :verb=>'GET'   ,:path=>"/p/plural/:id#{@a_sep}mget"         ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>     'formatted_mget_nom_singular', :verb=>'GET'   ,:path=>"/p/plural/:id#{@a_sep}mget.:format" ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>              'mpost_nom_singular', :verb=>'POST'  ,:path=>"/p/plural/:id#{@a_sep}mpost"        ,:action=>'mpost',:controller=>'singular' },
-        { :name=>    'formatted_mpost_nom_singular', :verb=>'POST'  ,:path=>"/p/plural/:id#{@a_sep}mpost.:format",:action=>'mpost',:controller=>'singular' }
+      [ { :name=> 'ndel_new_nom_singular', :verb=>'DELETE',:path=>"/p/plural/new#{@a_sep}ndel(.:format)" ,:action=>'ndel' ,:controller=>'singular' },
+        { :name=>'npost_new_nom_singular', :verb=>'POST'  ,:path=>"/p/plural/new#{@a_sep}npost(.:format)",:action=>'npost',:controller=>'singular' },
+        { :name=> 'nput_new_nom_singular', :verb=>'PUT'   ,:path=>"/p/plural/new#{@a_sep}nput(.:format)" ,:action=>'nput' ,:controller=>'singular' },
+        { :name=>       'cdel_nom_plural', :verb=>'DELETE',:path=>"/p/plural#{@a_sep}cdel(.:format)"     ,:action=>'cdel' ,:controller=>'singular' },
+        { :name=>       'cget_nom_plural', :verb=>'GET'   ,:path=>"/p/plural#{@a_sep}cget(.:format)"     ,:action=>'cget' ,:controller=>'singular' },
+        { :name=>       'cput_nom_plural', :verb=>'PUT'   ,:path=>"/p/plural#{@a_sep}cput(.:format)"     ,:action=>'cput' ,:controller=>'singular' },
+        { :name=>     'mdel_nom_singular', :verb=>'DELETE',:path=>"/p/plural/:id#{@a_sep}mdel(.:format)" ,:action=>'mdel' ,:controller=>'singular' },
+        { :name=>     'mget_nom_singular', :verb=>'GET'   ,:path=>"/p/plural/:id#{@a_sep}mget(.:format)" ,:action=>'mget' ,:controller=>'singular' },
+        { :name=>    'mpost_nom_singular', :verb=>'POST'  ,:path=>"/p/plural/:id#{@a_sep}mpost(.:format)",:action=>'mpost',:controller=>'singular' }
         ].should be_assorted_routes
       exp_route_ar = RT.pretty_plus_restful_route_ar.collect {|orig_r| orig_r.dup }
       exp_route_ar.collect! {|r| next if r.nil?
@@ -1278,24 +1222,15 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
         r[:path].gsub!(/#{orig_a_sep}destroy/  ,"#{@a_sep}destroy")
         r }
       exp_route_ar.should be_assorted_routes
-      [ { :name=>'nom_singular_new_ndel'   , :verb=>'DELETE',:path=>"/p/singular/new#{@a_sep}ndel"           ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=>'nom_singular_new_ndel_f' , :verb=>'DELETE',:path=>"/p/singular/new#{@a_sep}ndel.:format"   ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=>'nom_singular_new_npost'  , :verb=>'POST'  ,:path=>"/p/singular/new#{@a_sep}npost"          ,:action=>'npost',:controller=>'singular' },
-        { :name=>'nom_singular_new_npost_f', :verb=>'POST'  ,:path=>"/p/singular/new#{@a_sep}npost.:format"  ,:action=>'npost',:controller=>'singular' },
-        { :name=>'nom_singular_new_nput'   , :verb=>'PUT'   ,:path=>"/p/singular/new#{@a_sep}nput"           ,:action=>'nput' ,:controller=>'singular' },
-        { :name=>'nom_singular_new_nput_f' , :verb=>'PUT'   ,:path=>"/p/singular/new#{@a_sep}nput.:format"   ,:action=>'nput' ,:controller=>'singular' },
-        { :name=>'nom_singular_cdel'       , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}cdel"               ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_cdel_f'     , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}cdel.:format"       ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_cget'       , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}cget"               ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>'nom_singular_cget_f'     , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}cget.:format"       ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>'nom_singular_cput'       , :verb=>'PUT'   ,:path=>"/p/singular#{@a_sep}cput"               ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>'nom_singular_cput_f'     , :verb=>'PUT'   ,:path=>"/p/singular#{@a_sep}cput.:format"       ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>'nom_singular_id_mdel'    , :verb=>'DELETE',:path=>"/p/singular/:id#{@a_sep}mdel"           ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_id_mdel_f'  , :verb=>'DELETE',:path=>"/p/singular/:id#{@a_sep}mdel.:format"   ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_id_mget'    , :verb=>'GET'   ,:path=>"/p/singular/:id#{@a_sep}mget"           ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>'nom_singular_id_mget_f'  , :verb=>'GET'   ,:path=>"/p/singular/:id#{@a_sep}mget.:format"   ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>'nom_singular_id_mpost'   , :verb=>'POST'  ,:path=>"/p/singular/:id#{@a_sep}mpost"          ,:action=>'mpost',:controller=>'singular' },
-        { :name=>'nom_singular_id_mpost_f' , :verb=>'POST'  ,:path=>"/p/singular/:id#{@a_sep}mpost.:format"  ,:action=>'mpost',:controller=>'singular' }
+      [ { :name=>'nom_singular_new_ndel'   , :verb=>'DELETE',:path=>"/p/singular/new#{@a_sep}ndel(.:format)" ,:action=>'ndel' ,:controller=>'singular' },
+        { :name=>'nom_singular_new_npost'  , :verb=>'POST'  ,:path=>"/p/singular/new#{@a_sep}npost(.:format)",:action=>'npost',:controller=>'singular' },
+        { :name=>'nom_singular_new_nput'   , :verb=>'PUT'   ,:path=>"/p/singular/new#{@a_sep}nput(.:format)" ,:action=>'nput' ,:controller=>'singular' },
+        { :name=>'nom_singular_cdel'       , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}cdel(.:format)"     ,:action=>'cdel' ,:controller=>'singular' },
+        { :name=>'nom_singular_cget'       , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}cget(.:format)"     ,:action=>'cget' ,:controller=>'singular' },
+        { :name=>'nom_singular_cput'       , :verb=>'PUT'   ,:path=>"/p/singular#{@a_sep}cput(.:format)"     ,:action=>'cput' ,:controller=>'singular' },
+        { :name=>'nom_singular_id_mdel'    , :verb=>'DELETE',:path=>"/p/singular/:id#{@a_sep}mdel(.:format)" ,:action=>'mdel' ,:controller=>'singular' },
+        { :name=>'nom_singular_id_mget'    , :verb=>'GET'   ,:path=>"/p/singular/:id#{@a_sep}mget(.:format)" ,:action=>'mget' ,:controller=>'singular' },
+        { :name=>'nom_singular_id_mpost'   , :verb=>'POST'  ,:path=>"/p/singular/:id#{@a_sep}mpost(.:format)",:action=>'mpost',:controller=>'singular' }
         ].should be_assorted_routes
 
       @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource [:singular,:plural], big_opts }
@@ -1306,24 +1241,15 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
         r[:path].gsub!(/#{orig_a_sep}edit/, "#{@a_sep}edit")
         r }
       exp_route_ar.should be_assorted_routes
-      [ { :name=>           'ndel_new_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular/new#{@a_sep}ndel"         ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=> 'formatted_ndel_new_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular/new#{@a_sep}ndel.:format" ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=>          'npost_new_nom_singular', :verb=>'POST'    ,:path=>"/p/singular/new#{@a_sep}npost"        ,:action=>'npost',:controller=>'singular' },
-        { :name=>'formatted_npost_new_nom_singular', :verb=>'POST'    ,:path=>"/p/singular/new#{@a_sep}npost.:format",:action=>'npost',:controller=>'singular' },
-        { :name=>           'nput_new_nom_singular', :verb=>'PUT'     ,:path=>"/p/singular/new#{@a_sep}nput"         ,:action=>'nput' ,:controller=>'singular' },
-        { :name=> 'formatted_nput_new_nom_singular', :verb=>'PUT'     ,:path=>"/p/singular/new#{@a_sep}nput.:format" ,:action=>'nput' ,:controller=>'singular' },
-        { :name=>               'cdel_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular#{@a_sep}cdel"             ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>     'formatted_cdel_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular#{@a_sep}cdel.:format"     ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>               'cget_nom_singular', :verb=>'GET'     ,:path=>"/p/singular#{@a_sep}cget"             ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>     'formatted_cget_nom_singular', :verb=>'GET'     ,:path=>"/p/singular#{@a_sep}cget.:format"     ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>               'cput_nom_singular', :verb=>'PUT'     ,:path=>"/p/singular#{@a_sep}cput"             ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>     'formatted_cput_nom_singular', :verb=>'PUT'     ,:path=>"/p/singular#{@a_sep}cput.:format"     ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>               'mdel_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular#{@a_sep}mdel"             ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>     'formatted_mdel_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular#{@a_sep}mdel.:format"     ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>               'mget_nom_singular', :verb=>'GET'     ,:path=>"/p/singular#{@a_sep}mget"             ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>     'formatted_mget_nom_singular', :verb=>'GET'     ,:path=>"/p/singular#{@a_sep}mget.:format"     ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>              'mpost_nom_singular', :verb=>'POST'    ,:path=>"/p/singular#{@a_sep}mpost"            ,:action=>'mpost',:controller=>'singular' },
-        { :name=>    'formatted_mpost_nom_singular', :verb=>'POST'    ,:path=>"/p/singular#{@a_sep}mpost.:format"    ,:action=>'mpost',:controller=>'singular' }
+      [ { :name=> 'ndel_new_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular/new#{@a_sep}ndel(.:format)" ,:action=>'ndel' ,:controller=>'singular' },
+        { :name=>'npost_new_nom_singular', :verb=>'POST'    ,:path=>"/p/singular/new#{@a_sep}npost(.:format)",:action=>'npost',:controller=>'singular' },
+        { :name=> 'nput_new_nom_singular', :verb=>'PUT'     ,:path=>"/p/singular/new#{@a_sep}nput(.:format)" ,:action=>'nput' ,:controller=>'singular' },
+        { :name=>     'cdel_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular#{@a_sep}cdel(.:format)"     ,:action=>'cdel' ,:controller=>'singular' },
+        { :name=>     'cget_nom_singular', :verb=>'GET'     ,:path=>"/p/singular#{@a_sep}cget(.:format)"     ,:action=>'cget' ,:controller=>'singular' },
+        { :name=>     'cput_nom_singular', :verb=>'PUT'     ,:path=>"/p/singular#{@a_sep}cput(.:format)"     ,:action=>'cput' ,:controller=>'singular' },
+        { :name=>     'mdel_nom_singular', :verb=>'DELETE'  ,:path=>"/p/singular#{@a_sep}mdel(.:format)"     ,:action=>'mdel' ,:controller=>'singular' },
+        { :name=>     'mget_nom_singular', :verb=>'GET'     ,:path=>"/p/singular#{@a_sep}mget(.:format)"     ,:action=>'mget' ,:controller=>'singular' },
+        { :name=>    'mpost_nom_singular', :verb=>'POST'    ,:path=>"/p/singular#{@a_sep}mpost(.:format)"    ,:action=>'mpost',:controller=>'singular' }
         ].should be_assorted_routes
       exp_route_ar = RT.s_pretty_plus_restful_route_ar.but_without(*RT.s_restful_c_u_d_ar).collect {|orig_r| orig_r.dup }
       exp_route_ar.collect! {|r| next if r.nil?
@@ -1335,52 +1261,20 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
         r[:path].gsub!(/#{orig_a_sep}destroy/  ,"#{@a_sep}destroy")
         r }
       exp_route_ar.should be_assorted_routes
-      [ { :name=>'nom_singular_new_ndel'   , :verb=>'DELETE',:path=>"/p/singular/new#{@a_sep}ndel"         ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=>'nom_singular_new_ndel_f' , :verb=>'DELETE',:path=>"/p/singular/new#{@a_sep}ndel.:format" ,:action=>'ndel' ,:controller=>'singular' },
-        { :name=>'nom_singular_new_npost'  , :verb=>'POST'  ,:path=>"/p/singular/new#{@a_sep}npost"        ,:action=>'npost',:controller=>'singular' },
-        { :name=>'nom_singular_new_npost_f', :verb=>'POST'  ,:path=>"/p/singular/new#{@a_sep}npost.:format",:action=>'npost',:controller=>'singular' },
-        { :name=>'nom_singular_new_nput'   , :verb=>'PUT'   ,:path=>"/p/singular/new#{@a_sep}nput"         ,:action=>'nput' ,:controller=>'singular' },
-        { :name=>'nom_singular_new_nput_f' , :verb=>'PUT'   ,:path=>"/p/singular/new#{@a_sep}nput.:format" ,:action=>'nput' ,:controller=>'singular' },
-        { :name=>'nom_singular_cdel'       , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}cdel"             ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_cdel_f'     , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}cdel.:format"     ,:action=>'cdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_cget'       , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}cget"             ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>'nom_singular_cget_f'     , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}cget.:format"     ,:action=>'cget' ,:controller=>'singular' },
-        { :name=>'nom_singular_cput'       , :verb=>'PUT'   ,:path=>"/p/singular#{@a_sep}cput"             ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>'nom_singular_cput_f'     , :verb=>'PUT'   ,:path=>"/p/singular#{@a_sep}cput.:format"     ,:action=>'cput' ,:controller=>'singular' },
-        { :name=>'nom_singular_mdel'       , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}mdel"             ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_mdel_f'     , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}mdel.:format"     ,:action=>'mdel' ,:controller=>'singular' },
-        { :name=>'nom_singular_mget'       , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}mget"             ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>'nom_singular_mget_f'     , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}mget.:format"     ,:action=>'mget' ,:controller=>'singular' },
-        { :name=>'nom_singular_mpost'      , :verb=>'POST'  ,:path=>"/p/singular#{@a_sep}mpost"            ,:action=>'mpost',:controller=>'singular' },
-        { :name=>'nom_singular_mpost_f'    , :verb=>'POST'  ,:path=>"/p/singular#{@a_sep}mpost.:format"    ,:action=>'mpost',:controller=>'singular' }
+      [ { :name=>'nom_singular_new_ndel'   , :verb=>'DELETE',:path=>"/p/singular/new#{@a_sep}ndel(.:format)"         ,:action=>'ndel' ,:controller=>'singular' },
+        { :name=>'nom_singular_new_npost'  , :verb=>'POST'  ,:path=>"/p/singular/new#{@a_sep}npost(.:format)"        ,:action=>'npost',:controller=>'singular' },
+        { :name=>'nom_singular_new_nput'   , :verb=>'PUT'   ,:path=>"/p/singular/new#{@a_sep}nput(.:format)"         ,:action=>'nput' ,:controller=>'singular' },
+        { :name=>'nom_singular_cdel'       , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}cdel(.:format)"             ,:action=>'cdel' ,:controller=>'singular' },
+        { :name=>'nom_singular_cget'       , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}cget(.:format)"             ,:action=>'cget' ,:controller=>'singular' },
+        { :name=>'nom_singular_cput'       , :verb=>'PUT'   ,:path=>"/p/singular#{@a_sep}cput(.:format)"             ,:action=>'cput' ,:controller=>'singular' },
+        { :name=>'nom_singular_mdel'       , :verb=>'DELETE',:path=>"/p/singular#{@a_sep}mdel(.:format)"             ,:action=>'mdel' ,:controller=>'singular' },
+        { :name=>'nom_singular_mget'       , :verb=>'GET'   ,:path=>"/p/singular#{@a_sep}mget(.:format)"             ,:action=>'mget' ,:controller=>'singular' },
+        { :name=>'nom_singular_mpost'      , :verb=>'POST'  ,:path=>"/p/singular#{@a_sep}mpost(.:format)"            ,:action=>'mpost',:controller=>'singular' }
         ].should be_assorted_routes
 
     ensure
       @a_sep = ActionController::Base.resource_action_separator = orig_a_sep
     end ; end
-  it 'applies :f_name_suffix option' do
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :f_name_suffix=>'_F' }
-    RT.classic_route_ar.should be_consecutive_routes
-    RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/_f$/,'_F')
-      r }.should be_consecutive_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :f_name_suffix=>'_F' }
-    RT.s_classic_route_ar.should be_consecutive_routes
-    RT.s_pretty_plus_restful_route_ar.but_without(*RT.s_restful_c_u_d_ar).collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/_f$/,'_F')
-      r }.should be_consecutive_routes
-
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :f_name_suffix=>'F' }
-    RT.classic_route_ar.should be_consecutive_routes
-    RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/_f$/,'F')
-      r }.should be_consecutive_routes
-    @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :f_name_suffix=>'F' }
-    RT.s_classic_route_ar.should be_consecutive_routes
-    RT.s_pretty_plus_restful_route_ar.but_without(*RT.s_restful_c_u_d_ar).collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/_f$/,'F')
-      r }.should be_consecutive_routes
-    end
   it 'applies :id_name_suffix option' do
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :id_name_suffix=>'_ID' }
     RT.classic_route_ar.should be_consecutive_routes
@@ -1427,7 +1321,7 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :id_root_name_suffix=>'_IDROOT' }
     RT.classic_route_ar.should be_consecutive_routes
     RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/_id$/,'_id_IDROOT').gsub(/_id_f$/,'_id_IDROOT_f')
+      r[:name] = r[:name].gsub(/_id$/,'_id_IDROOT')
       r }.should be_consecutive_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :id_root_name_suffix=>'_IDROOT' }
     RT.s_classic_route_ar.should be_consecutive_routes
@@ -1436,7 +1330,7 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :id_root_name_suffix=>'IDROOT' }
     RT.classic_route_ar.should be_consecutive_routes
     RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/_id$/,'_idIDROOT').gsub(/_id_f$/,'_idIDROOT_f')
+      r[:name] = r[:name].gsub(/_id$/,'_idIDROOT')
       r }.should be_consecutive_routes
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resource  [:singular,:plural], :provide=>:all, :id_root_name_suffix=>'IDROOT' }
     RT.s_classic_route_ar.should be_consecutive_routes
@@ -2252,6 +2146,43 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
     should_have_collec_classics :message, :messages, :name_prefix=>'thread_' , :path_prefix=>'threads/1/' , :options=>{:thread_id=>'1'} , :shallow=>true
     should_have_collec_classics :comment, :comments, :name_prefix=>'message_', :path_prefix=>'messages/2/', :options=>{:message_id=>'2'}, :shallow=>true
     end
+  it "neither the :only nor :except option is inherited" do
+    @scratch_routes.clear! ; @scratch_routes.draw do |map|
+      map.outlaw_resources [:singular,:plural], :only=>:show, :except=>:new do |inner|
+        inner.outlaw_resource  :singu201
+        inner.outlaw_resources :singu202
+      end ; end
+    exp_route_ar = [RT.restful_show]
+    exp_route_ar += RT.s_default_route_ar.collect {|orig_r| r = orig_r.dup
+      r[:name] = r[:name].gsub(/singular/,'singular_id_singu201')
+      r[:path] = '/singular/:singular_id' + r[:path].gsub(/\/singular/,'/singu201')
+      r[:controller] = 'singu201'
+      r }
+    exp_route_ar += RT.default_route_ar.collect {|orig_r| r = orig_r.dup
+      r[:name] = r[:name].gsub(/singular/,'singular_id_singu202')
+      r[:path] = '/singular/:singular_id' + r[:path].gsub(/\/singular/,'/singu202')
+      r[:controller] = 'singu202'
+      r }
+    exp_route_ar.should be_exact_routes
+
+    @scratch_routes.clear! ; @scratch_routes.draw do |map|
+      map.outlaw_resource  [:singular,:plural], :only=>:show, :except=>:new do |inner|
+        inner.outlaw_resources :singu201
+        inner.outlaw_resource  :singu202
+      end ; end
+    exp_route_ar = [RT.s_restful_show]
+    exp_route_ar += RT.default_route_ar.collect {|orig_r| r = orig_r.dup
+      r[:name] = r[:name].gsub(/singular/,'singular_singu201')
+      r[:path] = '/singular' + r[:path].gsub(/\/singular/,'/singu201')
+      r[:controller] = 'singu201'
+      r }
+    exp_route_ar += RT.s_default_route_ar.collect {|orig_r| r = orig_r.dup
+      r[:name] = r[:name].gsub(/singular/,'singular_singu202')
+      r[:path] = '/singular' + r[:path].gsub(/\/singular/,'/singu202')
+      r[:controller] = 'singu202'
+      r }
+    exp_route_ar.should be_exact_routes
+    end
   it 'applies :namespace option, to generate routes as if called from within map.namespace' do
     @scratch_routes.clear! ; @scratch_routes.draw {|map| map.outlaw_resources [:singular,:plural], :provide=>:all, :namespace =>'back_office/' }
     RT.all_route_ar.collect   {|orig_r| r = orig_r.dup
@@ -2282,7 +2213,6 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       :provide=>:all,
       :path_prefix        =>'P',
       :name_prefix        =>'N',
-      :f_name_suffix      =>'F',
       :id_name_suffix     =>'I',      # Implies :nest_id_name_suffix=>:id_name_suffix
       :root_name_suffix   =>'R',
       :id_root_name_suffix=>'X',
@@ -2297,66 +2227,48 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
         inner.outlaw_resource  :singu201
         inner.outlaw_resources :singu202
       end ; end
-    [ { :name=>          'cget_Nplural' , :verb=>'GET'   ,:path=>"/P/plural#{@a_sep}cget"        ,:action=>'cget' ,:controller=>'singular' },
-      { :name=>'formatted_cget_Nplural' , :verb=>'GET'   ,:path=>"/P/plural#{@a_sep}cget.:format",:action=>'cget' ,:controller=>'singular' },
-      { :name=>          'cput_Nplural' , :verb=>'PUT'   ,:path=>"/P/plural#{@a_sep}cput"        ,:action=>'cput' ,:controller=>'singular' },
-      { :name=>'formatted_cput_Nplural' , :verb=>'PUT'   ,:path=>"/P/plural#{@a_sep}cput.:format",:action=>'cput' ,:controller=>'singular' },
-      { :name=>          'cdel_Nplural' , :verb=>'DELETE',:path=>"/P/plural#{@a_sep}cdel"        ,:action=>'cdel' ,:controller=>'singular' },
-      { :name=>'formatted_cdel_Nplural' , :verb=>'DELETE',:path=>"/P/plural#{@a_sep}cdel.:format",:action=>'cdel' ,:controller=>'singular' }
+    [ { :name=>'cget_Nplural' , :verb=>'GET'   ,:path=>"/P/plural#{@a_sep}cget(.:format)",:action=>'cget' ,:controller=>'singular' },
+      { :name=>'cput_Nplural' , :verb=>'PUT'   ,:path=>"/P/plural#{@a_sep}cput(.:format)",:action=>'cput' ,:controller=>'singular' },
+      { :name=>'cdel_Nplural' , :verb=>'DELETE',:path=>"/P/plural#{@a_sep}cdel(.:format)",:action=>'cdel' ,:controller=>'singular' }
       ].should be_assorted_routes
     exp_route_ar = RT.classic_route_ar.collect {|orig_r| orig_r.dup }
-    exp_route_ar.insert_above(RT.classic_show, nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil)
+    exp_route_ar.insert_above(RT.classic_show, nil,nil,nil,nil,nil,nil)
     exp_route_ar.collect! {|r| next if r.nil?
       r[:name] = r[:name].gsub(/singular/,'Nsingular').gsub(/plural/,'Nplural')
       r[:path] = "/P#{r[:path]}"
       r }
     exp_route_ar.should be_consecutive_routes
-    [ { :name=>          'npost_new_Nsingular',:verb=>'POST'  ,:path=>"/P/plural/new#{@a_sep}npost"        ,:action=>'npost',:controller=>'singular' },
-      { :name=>'formatted_npost_new_Nsingular',:verb=>'POST'  ,:path=>"/P/plural/new#{@a_sep}npost.:format",:action=>'npost',:controller=>'singular' },
-      { :name=>           'nput_new_Nsingular',:verb=>'PUT'   ,:path=>"/P/plural/new#{@a_sep}nput"         ,:action=>'nput' ,:controller=>'singular' },
-      { :name=> 'formatted_nput_new_Nsingular',:verb=>'PUT'   ,:path=>"/P/plural/new#{@a_sep}nput.:format" ,:action=>'nput' ,:controller=>'singular' },
-      { :name=>           'ndel_new_Nsingular',:verb=>'DELETE',:path=>"/P/plural/new#{@a_sep}ndel"         ,:action=>'ndel' ,:controller=>'singular' },
-      { :name=> 'formatted_ndel_new_Nsingular',:verb=>'DELETE',:path=>"/P/plural/new#{@a_sep}ndel.:format" ,:action=>'ndel' ,:controller=>'singular' }
+    [ { :name=>'npost_new_Nsingular',:verb=>'POST'  ,:path=>"/P/plural/new#{@a_sep}npost(.:format)",:action=>'npost',:controller=>'singular' },
+      { :name=> 'nput_new_Nsingular',:verb=>'PUT'   ,:path=>"/P/plural/new#{@a_sep}nput(.:format)" ,:action=>'nput' ,:controller=>'singular' },
+      { :name=> 'ndel_new_Nsingular',:verb=>'DELETE',:path=>"/P/plural/new#{@a_sep}ndel(.:format)" ,:action=>'ndel' ,:controller=>'singular' }
       ].should be_assorted_routes
-    [ { :name=>           'mget_Nsingular'    ,:verb=>'GET'   ,:path=>"/P/plural/:id#{@a_sep}mget"         ,:action=>'mget' ,:controller=>'singular' },
-      { :name=> 'formatted_mget_Nsingular'    ,:verb=>'GET'   ,:path=>"/P/plural/:id#{@a_sep}mget.:format" ,:action=>'mget' ,:controller=>'singular' },
-      { :name=>          'mpost_Nsingular'    ,:verb=>'POST'  ,:path=>"/P/plural/:id#{@a_sep}mpost"        ,:action=>'mpost',:controller=>'singular' },
-      { :name=>'formatted_mpost_Nsingular'    ,:verb=>'POST'  ,:path=>"/P/plural/:id#{@a_sep}mpost.:format",:action=>'mpost',:controller=>'singular' },
-      { :name=>           'mdel_Nsingular'    ,:verb=>'DELETE',:path=>"/P/plural/:id#{@a_sep}mdel"         ,:action=>'mdel' ,:controller=>'singular' },
-      { :name=> 'formatted_mdel_Nsingular'    ,:verb=>'DELETE',:path=>"/P/plural/:id#{@a_sep}mdel.:format" ,:action=>'mdel' ,:controller=>'singular' }
+    [ { :name=> 'mget_Nsingular'    ,:verb=>'GET'   ,:path=>"/P/plural/:id#{@a_sep}mget(.:format)" ,:action=>'mget' ,:controller=>'singular' },
+      { :name=>'mpost_Nsingular'    ,:verb=>'POST'  ,:path=>"/P/plural/:id#{@a_sep}mpost(.:format)",:action=>'mpost',:controller=>'singular' },
+      { :name=> 'mdel_Nsingular'    ,:verb=>'DELETE',:path=>"/P/plural/:id#{@a_sep}mdel(.:format)" ,:action=>'mdel' ,:controller=>'singular' }
       ].should be_assorted_routes
-    [ { :name=>'Nsingular_cget'    ,:verb=>'GET'   ,:path=>"/P/singular#{@a_sep}cget"             ,:action=>'cget' ,:controller=>'singular' },
-      { :name=>'Nsingular_cgetF'   ,:verb=>'GET'   ,:path=>"/P/singular#{@a_sep}cget.:format"     ,:action=>'cget' ,:controller=>'singular' },
-      { :name=>'Nsingular_cput'    ,:verb=>'PUT'   ,:path=>"/P/singular#{@a_sep}cput"             ,:action=>'cput' ,:controller=>'singular' },
-      { :name=>'Nsingular_cputF'   ,:verb=>'PUT'   ,:path=>"/P/singular#{@a_sep}cput.:format"     ,:action=>'cput' ,:controller=>'singular' },
-      { :name=>'Nsingular_cdel'    ,:verb=>'DELETE',:path=>"/P/singular#{@a_sep}cdel"             ,:action=>'cdel' ,:controller=>'singular' },
-      { :name=>'Nsingular_cdelF'   ,:verb=>'DELETE',:path=>"/P/singular#{@a_sep}cdel.:format"     ,:action=>'cdel' ,:controller=>'singular' }
+    [ { :name=>'Nsingular_cget'    ,:verb=>'GET'   ,:path=>"/P/singular#{@a_sep}cget(.:format)"     ,:action=>'cget' ,:controller=>'singular' },
+      { :name=>'Nsingular_cput'    ,:verb=>'PUT'   ,:path=>"/P/singular#{@a_sep}cput(.:format)"     ,:action=>'cput' ,:controller=>'singular' },
+      { :name=>'Nsingular_cdel'    ,:verb=>'DELETE',:path=>"/P/singular#{@a_sep}cdel(.:format)"     ,:action=>'cdel' ,:controller=>'singular' }
       ].should be_assorted_routes
     exp_route_ar = RT.pretty_plus_restful_route_ar.collect {|orig_r| orig_r.dup } + [
-      { :name=>'singular_new_npost'    ,:verb=>'POST'  ,:path=>"/singular/new#{@a_sep}npost"        ,:action=>'npost',:controller=>'singular' },
-      { :name=>'singular_new_npost_f'  ,:verb=>'POST'  ,:path=>"/singular/new#{@a_sep}npost.:format",:action=>'npost',:controller=>'singular' },
-      { :name=>'singular_new_nput'     ,:verb=>'PUT'   ,:path=>"/singular/new#{@a_sep}nput"         ,:action=>'nput' ,:controller=>'singular' },
-      { :name=>'singular_new_nput_f'   ,:verb=>'PUT'   ,:path=>"/singular/new#{@a_sep}nput.:format" ,:action=>'nput' ,:controller=>'singular' },
-      { :name=>'singular_new_ndel'     ,:verb=>'DELETE',:path=>"/singular/new#{@a_sep}ndel"         ,:action=>'ndel' ,:controller=>'singular' },
-      { :name=>'singular_new_ndel_f'   ,:verb=>'DELETE',:path=>"/singular/new#{@a_sep}ndel.:format" ,:action=>'ndel' ,:controller=>'singular' },
-      { :name=>'singular_id_mget'      ,:verb=>'GET'   ,:path=>"/singular/:id/mget"                 ,:action=>'mget' ,:controller=>'singular' },
-      { :name=>'singular_id_mget_f'    ,:verb=>'GET'   ,:path=>"/singular/:id/mget.:format"         ,:action=>'mget' ,:controller=>'singular' },
-      { :name=>'singular_id_mpost'     ,:verb=>'POST'  ,:path=>"/singular/:id/mpost"                ,:action=>'mpost',:controller=>'singular' },
-      { :name=>'singular_id_mpost_f'   ,:verb=>'POST'  ,:path=>"/singular/:id/mpost.:format"        ,:action=>'mpost',:controller=>'singular' },
-      { :name=>'singular_id_mdel'      ,:verb=>'DELETE',:path=>"/singular/:id/mdel"                 ,:action=>'mdel' ,:controller=>'singular' },
-      { :name=>'singular_id_mdel_f'    ,:verb=>'DELETE',:path=>"/singular/:id/mdel.:format"         ,:action=>'mdel' ,:controller=>'singular' }]
+      { :name=>'singular_new_npost',:verb=>'POST'  ,:path=>"/singular/new#{@a_sep}npost(.:format)",:action=>'npost',:controller=>'singular' },
+      { :name=>'singular_new_nput' ,:verb=>'PUT'   ,:path=>"/singular/new#{@a_sep}nput(.:format)" ,:action=>'nput' ,:controller=>'singular' },
+      { :name=>'singular_new_ndel' ,:verb=>'DELETE',:path=>"/singular/new#{@a_sep}ndel(.:format)" ,:action=>'ndel' ,:controller=>'singular' },
+      { :name=>'singular_id_mget'  ,:verb=>'GET'   ,:path=>"/singular/:id/mget(.:format)"         ,:action=>'mget' ,:controller=>'singular' },
+      { :name=>'singular_id_mpost' ,:verb=>'POST'  ,:path=>"/singular/:id/mpost(.:format)"        ,:action=>'mpost',:controller=>'singular' },
+      { :name=>'singular_id_mdel'  ,:verb=>'DELETE',:path=>"/singular/:id/mdel(.:format)"         ,:action=>'mdel' ,:controller=>'singular' }]
     exp_route_ar.collect! {|r| next if r.nil?
-      r[:name] = r[:name].gsub(/_id$/,'_idX').gsub(/_id_f$/,'_idX_f').gsub(/_id/,'I').gsub(/singular/,'Nsingular').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/_id$/,'_idX').gsub(/_id$/,'_idX').gsub(/_id/,'I').gsub(/singular/,'Nsingular').gsub(/_root/,'R')
       r[:path] = "/P#{r[:path]}"
       r }
     exp_route_ar.should be_assorted_routes
     RT.s_classic_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/singular/,'Nsingular_singu101').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/singular/,'Nsingular_singu101').gsub(/_root/,'R')
       r[:path] = r[:path].gsub(/singular/,'P/plural/:singular_id/singu101')
       r[:controller] = 'singu101'
       r }.should be_consecutive_routes
     RT.s_pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu101').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu101').gsub(/_root/,'R')
       r[:path] = r[:path].gsub(/singular/,'P/singular/:singular_id/singu101')
       r[:controller] = 'singu101'
       r }.should be_consecutive_routes
@@ -2366,17 +2278,17 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       r[:controller] = 'singu102'
       r }.should be_consecutive_routes
     RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu102').gsub(/_id$/,'_idX').gsub(/_id_f$/,'_idX_f').gsub(/_id/,'I').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu102').gsub(/_id$/,'_idX').gsub(/_id$/,'_idX').gsub(/_id/,'I').gsub(/_root/,'R')
       r[:path] = r[:path].gsub(/singular/,'P/singular/:singular_id/singu102')
       r[:controller] = 'singu102'
       r }.should be_consecutive_routes
     RT.s_classic_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/singular/,'Nsingular_singu201').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/singular/,'Nsingular_singu201').gsub(/_root/,'R')
       r[:path] = r[:path].gsub(/singular/,'P/plural/:singular_id/singu201')
       r[:controller] = 'singu201'
       r }.should be_consecutive_routes
     RT.s_pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu201').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu201').gsub(/_root/,'R')
       r[:path] = r[:path].gsub(/singular/,'P/singular/:singular_id/singu201')
       r[:controller] = 'singu201'
       r }.should be_consecutive_routes
@@ -2386,7 +2298,7 @@ describe ResourcesController, 'a call to outlaw_resources() and/or outlaw_resour
       r[:controller] = 'singu202'
       r }.should be_consecutive_routes
     RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
-      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu202').gsub(/_id$/,'_idX').gsub(/_id_f$/,'_idX_f').gsub(/_id/,'I').gsub(/_root/,'R').gsub(/_f$/,'F')
+      r[:name] = r[:name].gsub(/singular/,'NsingularI_singu202').gsub(/_id$/,'_idX').gsub(/_id$/,'_idX').gsub(/_id/,'I').gsub(/_root/,'R')
       r[:path] = r[:path].gsub(/singular/,'P/singular/:singular_id/singu202')
       r[:controller] = 'singu202'
       r }.should be_consecutive_routes
@@ -2621,6 +2533,39 @@ describe ResourcesController, 'a call to outlaw_resources() or _resource() in a 
     should_have_singleton_classics :product,            :controller=>'back_office/admin/product', :name_prefix=>'back_office_admin_'        , :path_prefix=>'back_office/admin/'
     should_have_singleton_classics :image  ,            :controller=>'back_office/admin/image'  , :name_prefix=>'back_office_admin_product_', :path_prefix=>'back_office/admin/product/'
     end
+  it 'nested resources inherit and properly apply the :shallow option, while themselves nested within namespaces' do
+    @scratch_routes.clear! ; @scratch_routes.draw do |map|
+      map.namespace :back_office do |back_office|
+        back_office.namespace :admin do |admin|
+          admin.outlaw_resources [:product,:products], :provide=>:all, :shallow=>true do |product|
+            product.outlaw_resources [:image,:images], :provide=>:all
+      end ; end ; end ; end
+    RT.all_route_ar.collect {|orig_r| r = orig_r.dup
+      r[:name] = r[:name].gsub(/singular/,'back_office_admin_product').gsub(/plural/,'back_office_admin_products')
+      r[:path] = "/back_office/admin#{r[:path]}".gsub(/singular/,'product').gsub(/plural/,'products')
+      r[:controller] = 'back_office/admin/product'
+      r }.should be_consecutive_routes
+    RT.classic_route_ar.collect {|orig_r| r = orig_r.dup
+      if r[:path] =~/:id/
+        r[:name] = r[:name].gsub(/singular/,'back_office_admin_image').gsub(/plural/,'back_office_admin_images')
+      else
+        r[:name] = r[:name].gsub(/singular/,'back_office_admin_product_image').gsub(/plural/,'back_office_admin_product_images')
+        r[:path] = "/products/:product_id#{r[:path]}"
+        end
+      r[:path] = "/back_office/admin#{r[:path]}".gsub(/singular/,'image').gsub(/plural/,'images')
+      r[:controller] = 'back_office/admin/image'
+      r }.should be_consecutive_routes
+    RT.pretty_plus_restful_route_ar.collect {|orig_r| r = orig_r.dup
+      if r[:path] =~/:id/
+        r[:name] = r[:name].gsub(/singular/,'back_office_admin_image')
+      else
+        r[:name] = r[:name].gsub(/singular/,'back_office_admin_product_id_image')
+        r[:path] = "/product/:product_id#{r[:path]}"
+        end
+      r[:path] = "/back_office/admin#{r[:path]}".gsub(/singular/,'image')
+      r[:controller] = 'back_office/admin/image'
+      r }.should be_consecutive_routes
+    end
   end # describe
 
 describe ResourcesController, 'dry-mapping resource route collection methods', :type=>:controller do
@@ -2630,153 +2575,153 @@ describe ResourcesController, 'dry-mapping resource route collection methods', :
   after  :all  do after_all ; end
   it 'outlaw_resource(s)_descriptor_array methods return an array of route descriptor hashes, without actually mapping any routes' do
     @scratch_routes.clear! ; @scratch_routes.draw do |map|
-      collection_ar = map.outlaw_resources_descriptor_array([:singular,:plural], :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} )
-      singleton_ar  = map.outlaw_resource_descriptor_array( [:singular,:plural], :provide=>:restful, :omit=>:all_nof )
+      collection_ar = map.outlaw_resources_descriptor_array([:singular,:plural], :provide=>:restful, :requirements=>{:id=>/abc/} )
+      singleton_ar  = map.outlaw_resource_descriptor_array( [:singular,:plural], :provide=>:restful )
       collection_ar.should == [
-        {:name=>'singular_root',    :path=>'/singular'         ,:options=>{:action=>'index'  ,:controller=>'singular',:conditions=>{:method=>:get   }           }},
-        {                           :path=>'/singular'         ,:options=>{:action=>'create' ,:controller=>'singular',:conditions=>{:method=>:post  }           }},
-        {:name=>'singular_new',     :path=>'/singular/new'     ,:options=>{:action=>'new'    ,:controller=>'singular',:conditions=>{:method=>:get   }           }},
-        {:name=>'singular_id',      :path=>'/singular/:id'     ,:options=>{:action=>'show'   ,:controller=>'singular',:conditions=>{:method=>:get   },:id=>/abc/}},
-        {                           :path=>'/singular/:id'     ,:options=>{:action=>'update' ,:controller=>'singular',:conditions=>{:method=>:put   },:id=>/abc/}},
-        {                           :path=>'/singular/:id'     ,:options=>{:action=>'destroy',:controller=>'singular',:conditions=>{:method=>:delete},:id=>/abc/}},
-        {:name=>'singular_id_edit', :path=>'/singular/:id/edit',:options=>{:action=>'edit'   ,:controller=>'singular',:conditions=>{:method=>:get   },:id=>/abc/}}]
+        {:name=>'singular_root',    :path=>'/singular.:format'         ,:options=>{:action=>'index'  ,:controller=>'singular',:conditions=>{:method=>:get   }           }},
+        {                           :path=>'/singular.:format'         ,:options=>{:action=>'create' ,:controller=>'singular',:conditions=>{:method=>:post  }           }},
+        {:name=>'singular_new',     :path=>'/singular/new.:format'     ,:options=>{:action=>'new'    ,:controller=>'singular',:conditions=>{:method=>:get   }           }},
+        {:name=>'singular_id',      :path=>'/singular/:id.:format'     ,:options=>{:action=>'show'   ,:controller=>'singular',:conditions=>{:method=>:get   },:id=>/abc/}},
+        {                           :path=>'/singular/:id.:format'     ,:options=>{:action=>'update' ,:controller=>'singular',:conditions=>{:method=>:put   },:id=>/abc/}},
+        {                           :path=>'/singular/:id.:format'     ,:options=>{:action=>'destroy',:controller=>'singular',:conditions=>{:method=>:delete},:id=>/abc/}},
+        {:name=>'singular_id_edit', :path=>'/singular/:id/edit.:format',:options=>{:action=>'edit'   ,:controller=>'singular',:conditions=>{:method=>:get   },:id=>/abc/}}]
       singleton_ar.should == [
-        {:name=>'singular_new_f',  :path=>'/singular/new.:format' ,:options=>{:action=>'new'    ,:controller=>'singular',:conditions=>{:method=>:get   } }},
-        {:name=>'singular_root_f', :path=>'/singular.:format'     ,:options=>{:action=>'show'   ,:controller=>'singular',:conditions=>{:method=>:get   } }},
-        {                          :path=>'/singular.:format'     ,:options=>{:action=>'create' ,:controller=>'singular',:conditions=>{:method=>:post  } }},
-        {                          :path=>'/singular.:format'     ,:options=>{:action=>'update' ,:controller=>'singular',:conditions=>{:method=>:put   } }},
-        {                          :path=>'/singular.:format'     ,:options=>{:action=>'destroy',:controller=>'singular',:conditions=>{:method=>:delete} }},
-        {:name=>'singular_edit_f', :path=>'/singular/edit.:format',:options=>{:action=>'edit'   ,:controller=>'singular',:conditions=>{:method=>:get   } }}]
+        {:name=>'singular_new',     :path=>'/singular/new.:format' ,:options=>{:action=>'new'    ,:controller=>'singular',:conditions=>{:method=>:get   } }},
+        {:name=>'singular_root',    :path=>'/singular.:format'     ,:options=>{:action=>'show'   ,:controller=>'singular',:conditions=>{:method=>:get   } }},
+        {                           :path=>'/singular.:format'     ,:options=>{:action=>'create' ,:controller=>'singular',:conditions=>{:method=>:post  } }},
+        {                           :path=>'/singular.:format'     ,:options=>{:action=>'update' ,:controller=>'singular',:conditions=>{:method=>:put   } }},
+        {                           :path=>'/singular.:format'     ,:options=>{:action=>'destroy',:controller=>'singular',:conditions=>{:method=>:delete} }},
+        {:name=>'singular_edit',    :path=>'/singular/edit.:format',:options=>{:action=>'edit'   ,:controller=>'singular',:conditions=>{:method=>:get   } }}]
       end
     [].should be_exact_routes
     end
   it 'outlaw_resource(s)_descriptor_array methods can receive code blocks containing nested calls to outlaw_resources() and outlaw_resource()' do
     @scratch_routes.clear! ; @scratch_routes.draw do |map|
-      nested_c_ar = map.outlaw_resources_descriptor_array( :article, :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |article|
-                      article.outlaw_resources(            :thread , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |thread|
-                        thread.outlaw_resources(           :comment, :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} )
+      nested_c_ar = map.outlaw_resources_descriptor_array( :article, :provide=>:restful, :requirements=>{:id=>/abc/} ) do |article|
+                      article.outlaw_resources(            :thread , :provide=>:restful, :requirements=>{:id=>/abc/} ) do |thread|
+                        thread.outlaw_resources(           :comment, :provide=>:restful, :requirements=>{:id=>/abc/} )
         end ; end
-      nested_s_ar = map.outlaw_resource_descriptor_array(  :outer  , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |outer|
-                      outer.outlaw_resource(               :middle , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |middle|
-                        middle.outlaw_resource(            :inner  , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} )
+      nested_s_ar = map.outlaw_resource_descriptor_array(  :outer  , :provide=>:restful, :requirements=>{:id=>/abc/} ) do |outer|
+                      outer.outlaw_resource(               :middle , :provide=>:restful, :requirements=>{:id=>/abc/} ) do |middle|
+                        middle.outlaw_resource(            :inner  , :provide=>:restful, :requirements=>{:id=>/abc/} )
         end ; end
       nested_c_ar.should == [
-        {:name=>"article_root",                        :path=>"/article"                                               ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"index"             }},
-        {                                              :path=>"/article"                                               ,:options=>{:controller=>"article",:conditions=>{:method=>:post  },:action=>"create"            }},
-        {:name=>"article_new",                         :path=>"/article/new"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"new"               }},
-        {:name=>"article_id",                          :path=>"/article/:id"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"show"   ,:id=>/abc/}},
-        {                                              :path=>"/article/:id"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:put   },:action=>"update" ,:id=>/abc/}},
-        {                                              :path=>"/article/:id"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:delete},:action=>"destroy",:id=>/abc/}},
-        {:name=>"article_id_edit",                     :path=>"/article/:id/edit"                                      ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"edit"   ,:id=>/abc/}},
-        {:name=>"article_id_thread_root",              :path=>"/article/:article_id/thread"                            ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"index"             }},
-        {                                              :path=>"/article/:article_id/thread"                            ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:post  },:action=>"create"            }},
-        {:name=>"article_id_thread_new",               :path=>"/article/:article_id/thread/new"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"new"               }},
-        {:name=>"article_id_thread_id",                :path=>"/article/:article_id/thread/:id"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"show"   ,:id=>/abc/}},
-        {                                              :path=>"/article/:article_id/thread/:id"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:put   },:action=>"update" ,:id=>/abc/}},
-        {                                              :path=>"/article/:article_id/thread/:id"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:delete},:action=>"destroy",:id=>/abc/}},
-        {:name=>"article_id_thread_id_edit",           :path=>"/article/:article_id/thread/:id/edit"                   ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"edit"   ,:id=>/abc/}},
-        {:name=>"article_id_thread_id_comment_root",   :path=>"/article/:article_id/thread/:thread_id/comment"         ,:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"index"             }},
-        {                                              :path=>"/article/:article_id/thread/:thread_id/comment"         ,:options=>{:controller=>"comment",:conditions=>{:method=>:post  },:action=>"create"            }},
-        {:name=>"article_id_thread_id_comment_new",    :path=>"/article/:article_id/thread/:thread_id/comment/new"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"new"               }},
-        {:name=>"article_id_thread_id_comment_id",     :path=>"/article/:article_id/thread/:thread_id/comment/:id"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"show"   ,:id=>/abc/}},
-        {                                              :path=>"/article/:article_id/thread/:thread_id/comment/:id"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:put   },:action=>"update" ,:id=>/abc/}},
-        {                                              :path=>"/article/:article_id/thread/:thread_id/comment/:id"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:delete},:action=>"destroy",:id=>/abc/}},
-        {:name=>"article_id_thread_id_comment_id_edit",:path=>"/article/:article_id/thread/:thread_id/comment/:id/edit",:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"edit"   ,:id=>/abc/}}]
+        {:name=>"article_root",                        :path=>"/article.:format"                                               ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"index"             }},
+        {                                              :path=>"/article.:format"                                               ,:options=>{:controller=>"article",:conditions=>{:method=>:post  },:action=>"create"            }},
+        {:name=>"article_new",                         :path=>"/article/new.:format"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"new"               }},
+        {:name=>"article_id",                          :path=>"/article/:id.:format"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"show"   ,:id=>/abc/}},
+        {                                              :path=>"/article/:id.:format"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:put   },:action=>"update" ,:id=>/abc/}},
+        {                                              :path=>"/article/:id.:format"                                           ,:options=>{:controller=>"article",:conditions=>{:method=>:delete},:action=>"destroy",:id=>/abc/}},
+        {:name=>"article_id_edit",                     :path=>"/article/:id/edit.:format"                                      ,:options=>{:controller=>"article",:conditions=>{:method=>:get   },:action=>"edit"   ,:id=>/abc/}},
+        {:name=>"article_id_thread_root",              :path=>"/article/:article_id/thread.:format"                            ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"index"             }},
+        {                                              :path=>"/article/:article_id/thread.:format"                            ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:post  },:action=>"create"            }},
+        {:name=>"article_id_thread_new",               :path=>"/article/:article_id/thread/new.:format"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"new"               }},
+        {:name=>"article_id_thread_id",                :path=>"/article/:article_id/thread/:id.:format"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"show"   ,:id=>/abc/}},
+        {                                              :path=>"/article/:article_id/thread/:id.:format"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:put   },:action=>"update" ,:id=>/abc/}},
+        {                                              :path=>"/article/:article_id/thread/:id.:format"                        ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:delete},:action=>"destroy",:id=>/abc/}},
+        {:name=>"article_id_thread_id_edit",           :path=>"/article/:article_id/thread/:id/edit.:format"                   ,:options=>{:controller=>"thread" ,:conditions=>{:method=>:get   },:action=>"edit"   ,:id=>/abc/}},
+        {:name=>"article_id_thread_id_comment_root",   :path=>"/article/:article_id/thread/:thread_id/comment.:format"         ,:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"index"             }},
+        {                                              :path=>"/article/:article_id/thread/:thread_id/comment.:format"         ,:options=>{:controller=>"comment",:conditions=>{:method=>:post  },:action=>"create"            }},
+        {:name=>"article_id_thread_id_comment_new",    :path=>"/article/:article_id/thread/:thread_id/comment/new.:format"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"new"               }},
+        {:name=>"article_id_thread_id_comment_id",     :path=>"/article/:article_id/thread/:thread_id/comment/:id.:format"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"show"   ,:id=>/abc/}},
+        {                                              :path=>"/article/:article_id/thread/:thread_id/comment/:id.:format"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:put   },:action=>"update" ,:id=>/abc/}},
+        {                                              :path=>"/article/:article_id/thread/:thread_id/comment/:id.:format"     ,:options=>{:controller=>"comment",:conditions=>{:method=>:delete},:action=>"destroy",:id=>/abc/}},
+        {:name=>"article_id_thread_id_comment_id_edit",:path=>"/article/:article_id/thread/:thread_id/comment/:id/edit.:format",:options=>{:controller=>"comment",:conditions=>{:method=>:get   },:action=>"edit"   ,:id=>/abc/}}]
       nested_s_ar.should == [
-        {:name=>"outer_new",               :path=>"/outer/new"              ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:get   },:action=>"new"    }},
-        {:name=>"outer_root",              :path=>"/outer"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:get   },:action=>"show"   }},
-        {                                  :path=>"/outer"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:post  },:action=>"create" }},
-        {                                  :path=>"/outer"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:put   },:action=>"update" }},
-        {                                  :path=>"/outer"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:delete},:action=>"destroy"}},
-        {:name=>"outer_edit",              :path=>"/outer/edit"             ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:get   },:action=>"edit"   }},
-        {:name=>"outer_middle_new",        :path=>"/outer/middle/new"       ,:options=>{:controller=>"middle",:conditions=>{:method=>:get   },:action=>"new"    }},
-        {:name=>"outer_middle_root",       :path=>"/outer/middle"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:get   },:action=>"show"   }},
-        {                                  :path=>"/outer/middle"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:post  },:action=>"create" }},
-        {                                  :path=>"/outer/middle"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:put   },:action=>"update" }},
-        {                                  :path=>"/outer/middle"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:delete},:action=>"destroy"}},
-        {:name=>"outer_middle_edit",       :path=>"/outer/middle/edit"      ,:options=>{:controller=>"middle",:conditions=>{:method=>:get   },:action=>"edit"   }},
-        {:name=>"outer_middle_inner_new",  :path=>"/outer/middle/inner/new" ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:get   },:action=>"new"    }},
-        {:name=>"outer_middle_inner_root", :path=>"/outer/middle/inner"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:get   },:action=>"show"   }},
-        {                                  :path=>"/outer/middle/inner"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:post  },:action=>"create" }},
-        {                                  :path=>"/outer/middle/inner"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:put   },:action=>"update" }},
-        {                                  :path=>"/outer/middle/inner"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:delete},:action=>"destroy"}},
-        {:name=>"outer_middle_inner_edit", :path=>"/outer/middle/inner/edit",:options=>{:controller=>"inner" ,:conditions=>{:method=>:get   },:action=>"edit"   }}]
+        {:name=>"outer_new",               :path=>"/outer/new.:format"              ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:get   },:action=>"new"    }},
+        {:name=>"outer_root",              :path=>"/outer.:format"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:get   },:action=>"show"   }},
+        {                                  :path=>"/outer.:format"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:post  },:action=>"create" }},
+        {                                  :path=>"/outer.:format"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:put   },:action=>"update" }},
+        {                                  :path=>"/outer.:format"                  ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:delete},:action=>"destroy"}},
+        {:name=>"outer_edit",              :path=>"/outer/edit.:format"             ,:options=>{:controller=>"outer" ,:conditions=>{:method=>:get   },:action=>"edit"   }},
+        {:name=>"outer_middle_new",        :path=>"/outer/middle/new.:format"       ,:options=>{:controller=>"middle",:conditions=>{:method=>:get   },:action=>"new"    }},
+        {:name=>"outer_middle_root",       :path=>"/outer/middle.:format"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:get   },:action=>"show"   }},
+        {                                  :path=>"/outer/middle.:format"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:post  },:action=>"create" }},
+        {                                  :path=>"/outer/middle.:format"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:put   },:action=>"update" }},
+        {                                  :path=>"/outer/middle.:format"           ,:options=>{:controller=>"middle",:conditions=>{:method=>:delete},:action=>"destroy"}},
+        {:name=>"outer_middle_edit",       :path=>"/outer/middle/edit.:format"      ,:options=>{:controller=>"middle",:conditions=>{:method=>:get   },:action=>"edit"   }},
+        {:name=>"outer_middle_inner_new",  :path=>"/outer/middle/inner/new.:format" ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:get   },:action=>"new"    }},
+        {:name=>"outer_middle_inner_root", :path=>"/outer/middle/inner.:format"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:get   },:action=>"show"   }},
+        {                                  :path=>"/outer/middle/inner.:format"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:post  },:action=>"create" }},
+        {                                  :path=>"/outer/middle/inner.:format"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:put   },:action=>"update" }},
+        {                                  :path=>"/outer/middle/inner.:format"     ,:options=>{:controller=>"inner" ,:conditions=>{:method=>:delete},:action=>"destroy"}},
+        {:name=>"outer_middle_inner_edit", :path=>"/outer/middle/inner/edit.:format",:options=>{:controller=>"inner" ,:conditions=>{:method=>:get   },:action=>"edit"   }}]
       end
     [].should be_exact_routes
     end
   it 'outlaw_resource(s)_ruby_code_array methods return an array of "named_route(" and "connect(" Ruby code fragments' do
     @scratch_routes.clear! ; @scratch_routes.draw do |map|
-      line_ar = map.outlaw_resources_ruby_code_array( [:singular,:plural], :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} )
+      line_ar = map.outlaw_resources_ruby_code_array( [:singular,:plural], :provide=>:restful, :requirements=>{:id=>/abc/} )
         line_ar.size.should == 7
-        [ 'named_route("singular_root","/singular",{',
-          'connect("/singular",{',
-          'named_route("singular_new","/singular/new",{',
-          'named_route("singular_id","/singular/:id",{',
-          'connect("/singular/:id",{',
-          'connect("/singular/:id",{',
-          'named_route("singular_id_edit","/singular/:id/edit",{'
+        [ 'named_route("singular_root","/singular.:format",{',
+          'connect("/singular.:format",{',
+          'named_route("singular_new","/singular/new.:format",{',
+          'named_route("singular_id","/singular/:id.:format",{',
+          'connect("/singular/:id.:format",{',
+          'connect("/singular/:id.:format",{',
+          'named_route("singular_id_edit","/singular/:id/edit.:format",{'
           ].each_with_index {|x,i| line_ar[i].gsub(' ','')[0...x.length].should == x }
         ruby_code = line_ar.collect {|frag| "map.#{frag}\n" }.join
         [].should be_exact_routes
         eval(ruby_code)
       end
-    RT.restful_route_ar.reject {|r| r[:path]=~/:format/ }.should be_exact_routes
+    RT.restful_route_ar.should be_exact_routes
     @scratch_routes.clear! ; @scratch_routes.draw do |map|
-      line_ar = map.outlaw_resource_ruby_code_array( [:singular,:plural], :provide=>:restful, :omit=>:all_nof )
+      line_ar = map.outlaw_resource_ruby_code_array( [:singular,:plural], :provide=>:restful )
         line_ar.size.should == 6
-        [ 'named_route("singular_new_f","/singular/new.:format",{',
-          'named_route("singular_root_f","/singular.:format",{',
+        [ 'named_route("singular_new","/singular/new.:format",{',
+          'named_route("singular_root","/singular.:format",{',
           'connect("/singular.:format",{',
           'connect("/singular.:format",{',
           'connect("/singular.:format",{',
-          'named_route("singular_edit_f","/singular/edit.:format",{'
+          'named_route("singular_edit","/singular/edit.:format",{'
           ].each_with_index {|x,i| line_ar[i].gsub(' ','')[0...x.length].should == x }
         ruby_code = line_ar.collect {|frag| "map.#{frag}\n" }.join
         [].should be_exact_routes
         eval(ruby_code)
       end
-    RT.s_restful_route_ar.select {|r| r[:path]=~/:format/ }.should be_exact_routes
+    RT.s_restful_route_ar.should be_exact_routes
     end
   it 'outlaw_resource(s)_ruby_code_array methods can receive codeblocks containing nested calls to outlaw_resources() and outlaw_resource()' do
     @scratch_routes.clear! ; @scratch_routes.draw do |map|
-      nested_c_ruby_ar = map.outlaw_resources_ruby_code_array( :article, :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |article|
-                           article.outlaw_resources(           :thread , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |thread|
-                             thread.outlaw_resources(          :comment, :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} )
+      nested_c_ruby_ar = map.outlaw_resources_ruby_code_array( :article, :provide=>:restful, :requirements=>{:id=>/abc/} ) do |article|
+                           article.outlaw_resources(           :thread , :provide=>:restful, :requirements=>{:id=>/abc/} ) do |thread|
+                             thread.outlaw_resources(          :comment, :provide=>:restful, :requirements=>{:id=>/abc/} )
         end ; end
-      nested_s_ruby_ar = map.outlaw_resource_ruby_code_array( :outer  , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |outer|
-                           outer.outlaw_resource(             :middle , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} ) do |middle|
-                             middle.outlaw_resource(          :inner  , :provide=>:restful, :omit=>:all_f, :requirements=>{:id=>/abc/} )
+      nested_s_ruby_ar = map.outlaw_resource_ruby_code_array( :outer  , :provide=>:restful, :requirements=>{:id=>/abc/} ) do |outer|
+                           outer.outlaw_resource(             :middle , :provide=>:restful, :requirements=>{:id=>/abc/} ) do |middle|
+                             middle.outlaw_resource(          :inner  , :provide=>:restful, :requirements=>{:id=>/abc/} )
         end ; end
       ruby_code = (nested_c_ruby_ar+nested_s_ruby_ar).collect {|frag| "map.#{frag}\n" }.join
       [].should be_exact_routes
       eval(ruby_code)
       end
-    exp_route_ar  = RT.restful_route_ar.reject {|r| r[:path]=~/:format/ }.collect {|orig_r| r = orig_r.dup
+    exp_route_ar  = RT.restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'article')
       r[:path] = r[:path].gsub(/singular/,'article')
       r[:controller] = 'article'
       r }
-    exp_route_ar += RT.restful_route_ar.reject {|r| r[:path]=~/:format/ }.collect {|orig_r| r = orig_r.dup
+    exp_route_ar += RT.restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'article_id_thread')
       r[:path] = r[:path].gsub(/singular/,'article/:article_id/thread')
       r[:controller] = 'thread'
       r }
-    exp_route_ar += RT.restful_route_ar.reject {|r| r[:path]=~/:format/ }.collect {|orig_r| r = orig_r.dup
+    exp_route_ar += RT.restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'article_id_thread_id_comment')
       r[:path] = r[:path].gsub(/singular/,'article/:article_id/thread/:thread_id/comment')
       r[:controller] = 'comment'
       r }
-    exp_route_ar += RT.s_restful_route_ar.reject {|r| r[:path]=~/:format/ }.collect {|orig_r| r = orig_r.dup
+    exp_route_ar += RT.s_restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'outer')
       r[:path] = r[:path].gsub(/singular/,'outer')
       r[:controller] = 'outer'
       r }
-    exp_route_ar += RT.s_restful_route_ar.reject {|r| r[:path]=~/:format/ }.collect {|orig_r| r = orig_r.dup
+    exp_route_ar += RT.s_restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'outer_middle')
       r[:path] = r[:path].gsub(/singular/,'outer/middle')
       r[:controller] = 'middle'
       r }
-    exp_route_ar += RT.s_restful_route_ar.reject {|r| r[:path]=~/:format/ }.collect {|orig_r| r = orig_r.dup
+    exp_route_ar += RT.s_restful_route_ar.collect {|orig_r| r = orig_r.dup
       r[:name] = r[:name].gsub(/singular/,'outer_middle_inner')
       r[:path] = r[:path].gsub(/singular/,'outer/middle/inner')
       r[:controller] = 'inner'

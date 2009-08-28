@@ -77,6 +77,16 @@ describe ResourcesController, "translation tool correctly translates lines of co
   it_goes_four_ways(', :new=>{:preview=>:post}, :path_prefix=>"/threads/:thread_id", :name_prefix=>"thread_"')
   it_goes_four_ways(', :new=>{:preview=>:post}, :path_prefix=>"/threads/:thread_id", :name_prefix=>"thread_"')
 
+  # Note that :only and :except are meant to reduce the number of routes. This spec script verifies
+  # that the outlaw_resources syntax generates a superset of the resources syntax. That means that if
+  # the Outlaw methods are somehow imposing looser restrictions than the Rails methods, the problem
+  # will get by these tests. But since Outlaw syntax for :only and :except is compatible with standard
+  # Rails syntax, these two parameters may just be carried over as-is. Consequently, these tests
+  # will never fail, so they're commented out.
+  # it_goes_four_ways(', :only=>[:show,:new]')
+  # it_goes_four_ways(', :except=>[:create,:destroy]')
+  # it_goes_four_ways(', :only=>[:show,:new], :except=>[:create,:destroy]')
+
   it_goes_four_ways(', :has_many=>[:plur101,:plur102]')
   it_goes_four_ways(', :has_many=>[:plur101,:plur102], :shallow=>true')
   it_goes_four_ways(', :has_many=>{:plur101=>[:plur102,{:plur103=>:plur104}]}')

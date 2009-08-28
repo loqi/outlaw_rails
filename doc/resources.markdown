@@ -434,6 +434,42 @@ option nominates a set of routes for inclusion, and the `:omit` option pares dow
 routes. A route is mapped only if it is listed in the `:provide` option (set to the `:default`
 mnemonic by default), *and is not* listed in the `:omit` option (set empty by default).
 
+**`:only`** `String`, `Symbol`, or `Array` (not inherited by inner code blocks)  
+**`:except`** `String`, `Symbol`, or `Array` (not inherited by inner code blocks)  
+Specify which of the seven default actions should be routed to. :only and :except may be set to
+:all, :none, an action name or a list of action names. By default, routes are generated for all
+the standard actions.
+
+For example:
+
+	map.outlaw_resources :post, :only=>[:index,:show] do |post|
+	  post.outlaw_resources :comment, :except=>[:update,:destroy]
+	  end
+
+...will map these...
+
+	yes               post_root GET    /post                           PostController#index
+	no                          POST   /post                           PostController#create
+	yes              post_index GET    /post/index                     PostController#index
+	no                 post_new GET    /post/new                       PostController#new
+	yes                 post_id GET    /post/:id                       PostController#show
+	no                          PUT    /post/:id                       PostController#update
+	no                          DELETE /post/:id                       PostController#destroy
+	no             post_id_edit GET    /post/:id/edit                  PostController#edit
+	yes    post_id_comment_root GET    /post/:post_id/comment          CommentController#index
+	yes                         POST   /post/:post_id/comment          CommentController#create
+	yes   post_id_comment_index GET    /post/:post_id/comment/index    CommentController#index
+	yes     post_id_comment_new GET    /post/:post_id/comment/new      CommentController#new
+	yes      post_id_comment_id GET    /post/:post_id/comment/:id      CommentController#show
+	no                          PUT    /post/:post_id/comment/:id      CommentController#update
+	no                          DELETE /post/:post_id/comment/:id      CommentController#destroy
+	yes post_id_comment_id_edit GET    /post/:post_id/comment/:id/edit CommentController#edit
+
+Don't confuse these options with the `:provide` and `:omit` options. While the functionality
+of the two approaches often overlaps, they are not identical. `:only` and `:except` were
+introduced in Rails 2.3 and are supported for compatibility. The `:only` and `:expept` options
+receive action names, while `:provide` and `:omit` receive route mnemonics.
+
 **`:collection`** Hash  
 **`:member`** Hash  
 **`:new`** Hash  
@@ -527,24 +563,6 @@ left. By default, this option is "`_id`".
 
 	map.outlaw_resources :catalog, :id_name_suffix=>'_item'
 	# Makes routes with names like "catalog_item_destroy" instead of "catalog_id_destroy"
-
-**`:f_name_suffix`** `String` (inherited by inner code blocks)  
-Specify the trailing characters for the route names of the format-aware non-classic routes.
-That is, for every Outlaw route whose path ends with "`.:format`", the name will end with
-the characters specified by this option. By default, this option is "`_f`".
-
-	map.outlaw_resources :report, :provide=>:all, :f_name_suffix=>'_with_protocol'
-	# Sampling of the routes that are mapped:
-	# reports                       /reports            (does not affect classics)
-	# formatted_reports             /reports.:format
-	# edit_report                   /reports/:id/edit
-	# formatted_edit_report         /reports/:id/edit.:format
-	# report_root                   /report             (does not affect unformatted)
-	# report_root_with_protocol     /report.:format     (affects outlaw+formatted)
-	# report_id_edit                /report/:id/edit
-	# report_id_edit_with_protocol  /report/:id/edit.:format
-	# report_index                  /report/index
-	# report_index_with_protocol    /report/index.:format
 
 ### Options: URL Paths
 
@@ -746,37 +764,6 @@ methods. There is no durable connection between the route mnemonics and the actu
 routes that get generated. The mnemonics just provide a convenient means of identifying
 which possible routes are to be affected by the resource generation options.
 
-### Pair Mnemonics
-
-A pair route mnemonic refers to a pair of routes, i.e. one route which accepts a format
-field in the URL, and another nearly identical route which does not (usually expecting
-HTML). Technically, if more than one HTTP verb is associated with a mnemonic, then a
-pair mnemonic refers to more than two routes (multiply the number of associated verbs
-by two for the number of possible routes to which the "pair" mnemonic refers).
-
-Pair mnemonics:
-
-	Pair mnemonic       Typical name       Typical path       Typical action set
-	------------------- ------------------ ------------------ ------------------
-	collection          thing_root         /thing             GET:index POST:create
-	index               thing_index        /thing/index       GET:index
-	new                 thing_new          /thing/new         GET:new
-	create              thing_create       /thing/create      POST:create
-	member              thing_id           /thing/12          GET:show PUT:update DELETE:destroy
-	show                thing_id_show      /thing/12/show     GET:show
-	edit                thing_id_edit      /thing/12/edit     GET:edit
-	update              thing_id_update    /thing/12/update   PUT:update
-	destroy             thing_id_destroy   /thing/:id/destroy DELETE:destroy
-	classic_collection  things             /things            GET:index" POST:create
-	classic_new         new_thing          /things/new        GET:new
-	classic_member      thing              /things/12         GET:show PUT:update DELETE:destroy
-	classic_edit        edit_thing         /things/12/edit    GET:edit
-
->Although the above table doesn't show, each line item also includes a formatted version
-of each route in addition to a unformatted version. For example, the "`classic_edit`"
-mnemonic usually refers both to the route "`edit_thing GET /things/:id/edit`" and the
-route "`formatted_edit_thing GET /things/:id/edit.:format`" as well.
-
 ### Composite mnemonics
 
 It is convenient to refer to broad groupings of routes under a single identifier. These
@@ -794,78 +781,47 @@ Composite mnemonics:
 	all                 restful, pretty, classic
 	none                (empty)
 
-Any pair or composite mnemonic may have `_f` or `_nof` as a suffix. The `_f`
-suffix specifies the "formatted" version of a route or group of routes, and `_nof`
-specifies the "regular" version. A mnemonic without such a suffix indicates both
-flavors taken together.
-
-And a few composite mnemonics with formattability suffixes:
-
-	Composite mnemonic  Equivalent to
-	------------------- -----------------------------------------
-	restful_nof         collection_nof, new_nof, index_nof, create_nof
-	pretty_f            index_f, new_f, create_f, show_f, edit_f, update_f, destroy_f
-	outlaw_f            restful_f, pretty_f
-	outlaw_nof          restful_nof, pretty_nof
-	all_f               restful_f, pretty_f, classic_f
-
 ### Elemental mnemonics
 
 An elemental route mnemonic is one which cannot be specified with any inner level of
-detail. Thus, a pair mnemonic with a formattability suffix is an elemental mnemonic.
+detail. Thus, a composite mnemonic refers to a collection of other ("smaller") mnemonics,
+while an elemental mnemonic is the most precise addressing possible for mnemonics.
 Note that an elemental mnemonic can refer to more than one route, since a separate
 Rails route is generated for each of the associated HTTP verbs. For example, the
-mnemonic 'collection_nof' refers to a set of two Rails routes--one for the GET verb
-and one for the POST verb.
+mnemonic 'collection' refers to a set of two Rails routes--one for the GET verb and one
+for the POST verb.
 
 A few elemental mnemonics:
 
-	Elemental mnemonic      Typical name          Typical path
-	---------------------   --------------------- --------------------
-	collection_nof          thing_root            /thing
-	collection_f            thing_root_f          /thing.html
-	index_f                 thing_index_f         /thing/index.html
-	show_nof                thing_id_show         /thing/12/show
-	classic_member_nof      thing                 /things/12
-	classic_member_f        formatted_thing       /things/12.html
+	Elemental mnemonic    Typical name       Typical path
+	-------------------   ------------------ ----------------
+	collection            thing_root         /thing
+	index                 thing_index        /thing/index
+	show                  thing_id_show      /thing/12/show
+	classic_member        thing              /things/12
 
 Putting this all together, this code...
 
-	map.outlaw_resources :account, :provide=>[:default,:pretty_nof]
+	map.outlaw_resources :account, :provide=>[:default,:show]
 
 ...will generate these routes:
 
-	Route name         Sample path           Action set           (elemental mnemonic)
-	------------------ --------------------- -------------------- --------------------
-	account_root       /account              index create         (collection_nof)
-	account_root_f     /account.html         index create         (collection_f)
-	account_index      /account/index        index                (index_nof)
-	account_index_f    /account/index.html   index                (index_f)
-	account_new        /account/new          new                  (new_nof)
-	account_new_f      /account/new.html     new                  (new_f)
-	account_create     /account/create       create               (create_nof)
-	account_id         /account/31           show update destroy  (member_nof)
-	account_id_f       /account/31.html      show update destroy  (member_f)
-	account_id_show    /account/31/show      show                 (show_nof)
-	account_id_edit    /account/31/edit      edit                 (edit_nof)
-	account_id_edit_f  /account/31/edit.html edit                 (edit_f)
-	account_id_update  /account/31/update    update               (update_nof)
-	account_id_destroy /account/31/destroy   destroy              (destroy_nof)
+	Route name       Sample path        Action set           (elemental mnemonic)
+	---------------- ------------------ -------------------- -----------------------
+	account_root     /account           index create         (collection)
+	account_index    /account/index     index                (index)
+	account_new      /account/new       new                  (new)
+	account_id       /account/31        show update destroy  (member)
+	account_id_show  /account/31/show   show                 (show)
+	account_id_edit  /account/31/edit   edit                 (edit)
 
-In the example, we see the array `[:default, :pretty_nof]`. The symbol `:default`
-represents `[:restful, :index]` and the symbol `:pretty_nof` represents
-`[:index_nof, :new_nof, :create_nof, :show_nof, :edit_nof, :update_nof, :destroy_nof]`.
-In turn, the symbol `:restful` represents `[:collection, :new, :member, :edit]`.
+In the example, we see the array `[:default, :show]`. The symbol `:default`
+represents `[:restful, :index]`. In turn, the symbol `:restful` represents
+`[:collection, :new, :member, :edit]`.
 
 So our example means exactly the same thing as if we'd written...
 
-	map.outlaw_resources :account, :provide=>[ :collection, :member, :new, :edit, :index,
-	                                           :create_nof, :show_nof, :update_nof, :destroy_nof ]
+	map.outlaw_resources :account,
+	                     :provide=>[ :collection, :index, :new, :member, :show, :edit ]
 
-...or even...
-
-	map.outlaw_resources :account, :provide=>[ :collection_nof, :collection_f, :member_nof, :member_f,
-	                                           :new_nof, :new_f, :edit_nof, :edit_f, :index_nof, :index_f,
-	                                           :create_nof, :show_nof, :update_nof, :destroy_nof ]
-
-This generates a total of twenty routes under fourteen names.
+This generates a total of nine routes under six names.

@@ -72,26 +72,4 @@ class String
   RANDOM_TEXT_DEFLEN = 10
   RANDOM_TEXT_DEFPAL = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
-  # These two methods are modified from active_support/core_ext/string/access.rb , which have bugs:
-
-  # Returns the first character of the string or the first +limit+ characters.
-  #
-  # Examples: 
-  #   "hello".first     # => "h"
-  #   "hello".first(2)  # => "he"
-  #   "hello".first(10) # => "hello"
-  #   "hello".first(0)  # => ""   <-- This one returns the whole string in the current ActiveSupport
-  #   "hello".first(-2) # => ""   <-- This one returns "hel" in the current ActiveSupport
-  def first(lim=1) lim<1 ? '' : mb_chars[0..(lim-1)].to_s ; end
-
-  # Returns the last character of the string or the last +limit+ characters.
-  #
-  # Examples: 
-  #   "hello".last     # => "o"
-  #   "hello".last(2)  # => "lo"
-  #   "hello".last(10) # => "hello"
-  #   "hello".last(0)  # => ""   <-- This one returns the whole string in the current ActiveSupport
-  #   "hello".last(-2) # => ""   <-- This one returns "llo" in the current ActiveSupport
-  def last(lim=1) lim<1 ? '' : (mb_chars[(-lim)..-1] || self).to_s ; end
-
   end # class String

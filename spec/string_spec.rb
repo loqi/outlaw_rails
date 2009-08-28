@@ -94,9 +94,6 @@ class HaveStatsWithin
 
 describe String do
 
-# TODO: Try all methods with bare parameter list.
-# TODO: Test some bad stuff too.
-
   # Test String#trim_whitespace! and String#trim_whitespace :
   plain_testers = [] ; mutator_testers = []
   [ [""                            , ""                 ] ,

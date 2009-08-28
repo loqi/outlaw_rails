@@ -1,14 +1,14 @@
 <!-- A "markdown viewer" will render this file as pretty-formatted text.
   One of your text editors or file browsers may already support it. -->
 
-Outlaw Rails Plugin for Ruby on Rails 2.2
+Outlaw Rails Plugin for Ruby on Rails 2.3
 =========================================
 
 The outlaw_rails plugin contains a collection of features useful for building
 Ruby on Rails web applications. Each major feature group is briefly described in
 the sections below, and has its own detailed documentation file describing it.
 
-Outlaw Rails version 2.2 is optimized for use with Ruby on Rails version 2.2.
+Outlaw Rails version 2.3 is optimized for use with Ruby on Rails version 2.3.
 See README.txt for a discussion of how to get your Rails and Outlaw versions
 to match.
 
@@ -50,3 +50,10 @@ that plugin. If you would like to use that plugin instead of Outlaw Rails custom
 validation messages, you'll need to edit `plugins/outlaw_rails/init.rb` such that
 `require 'ar_messages'` is not executed.
 
+Version 2.3 differs from version 2.2 in the following ways:
+
+* The `:only` and `:except` options have been added to the `outlaw_resource` and
+`outlaw_resources` methods. These options were not present in pre-2.3 Rails.
+* Combined functionality of the "format" from "non-format" routes. Previously,
+two flavors of each route were used to implement formatted and default routes.
+Version 2.3 combines the two routes into one.

@@ -7,14 +7,14 @@ Each of these components can be easily disabled by editing init.rb.
 
 See doc/_introduction for an overview of what this plugin can do.
 
-Outlaw Rails version 2.2 is optimized for use with Ruby on Rails version 2.2.
+Outlaw Rails version 2.3 is optimized for use with Ruby on Rails version 2.3.
 
 The third field of both Rails and Outlaw version numbers indicates bug fixes,
-so Rails 2.2.7 would be fully compatible with Outlaw 2.2.2, or vice-versa.
+so Rails 2.3.7 would be fully compatible with Outlaw 2.3.2, or vice-versa.
 Rails 2.0 and 2.1 are sufficiently similar to Rails 2.2, so as to be compatible
 with Outlaw 2.2. However, Rails 2.3 introduced major changes to the routing
 system, rendering Outlaw 2.2 incompatible with Rails 2.3. Look for
-outlaw_rails 2.3 for use with Rails 2.3 or above.
+outlaw_rails 2.2 for use with Rails 2.2 or below.
 
 To see all the versions of Rails you have installed, type at a terminal window,
       gem list | grep rails
