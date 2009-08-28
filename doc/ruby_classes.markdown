@@ -244,7 +244,6 @@ omitted, all elements of the receiver are potentially affected.
 **`nils_to!(new_value, *keys)`** => `Hash`  
 Same as `nils_to`, with the receiver overwritten by the return value.
 
-
 Extensions to Ruby Comparable module
 ------------------------------------
 

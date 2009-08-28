@@ -368,4 +368,6 @@ describe Object do
     end
   it_good_batch(method_testers, "to_f_or_0 correctly translates without side effect")
 
+# TODO: test with invalid parameters.
+
   end # describe

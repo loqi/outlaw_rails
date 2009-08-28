@@ -3,6 +3,8 @@
 
 require "#{File.dirname(__FILE__)}/spec_helper_all"
 
+# TODO: this should probably be in a module.
+
 class MethodTester
   attr_reader :abbr_syntax
   def initialize(orig_obj, meth_syntax, expec_reply)

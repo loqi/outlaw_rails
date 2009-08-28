@@ -17,6 +17,7 @@ class Object
       end # Self contains garbage, or a valid representation of zero.
     begin
       Integer(respond_to?(:trim_whitespace) ? trim_whitespace : self)
+      # TODO: Try Float() instead of Integer(). It seems to be more reliable.
       # The trimming is a workaround for a Ruby bug (verified in 1.8.6):
       # Integer(" 1 ") =>1; Integer(" 0") =>0; but Integer("0 ") throws exception.
     rescue ArgumentError

@@ -785,11 +785,10 @@ Composite mnemonics:
 
 An elemental route mnemonic is one which cannot be specified with any inner level of
 detail. Thus, a composite mnemonic refers to a collection of other ("smaller") mnemonics,
-while an elemental mnemonic is the most precise addressing possible for mnemonics.
-Note that an elemental mnemonic can refer to more than one route, since a separate
-Rails route is generated for each of the associated HTTP verbs. For example, the
-mnemonic 'collection' refers to a set of two Rails routes--one for the GET verb and one
-for the POST verb.
+while an elemental mnemonic is the most precise addressing possible for mnemonics. Note
+that an elemental mnemonic can refer to more than one route, since a separate Rails route
+is generated for each of the associated HTTP verbs. For example, the mnemonic 'collection'
+refers to a set of two Rails routes--one for the GET verb and one for the POST verb.
 
 A few elemental mnemonics:
 
