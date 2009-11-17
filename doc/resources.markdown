@@ -244,8 +244,8 @@ If we want to be both RESTful and pretty, we could use this code...
 Notice there are now two ways to get to each of the actions, except for `new`
 and `edit`, since the RESTful and pretty forms of those two routes are identical.
 
-Nested Routes
--------------
+Nested Resources
+----------------
 
 In the config/routes.rb script, this code...
 
