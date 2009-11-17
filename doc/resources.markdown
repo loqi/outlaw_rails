@@ -702,7 +702,7 @@ blocks will not propagate to outer arrays; use ordinary resource methods for tha
 	               article.outlaw_resources(:thread) do |thread| # Not a dry-map!
 	                 thread.outlaw_resources(:comment) ; end ; end
 	# Do some stuff to the ruby_array
-	ruby_array.each {|line_of_code| eval("map.#{line_of_code}")
+	ruby_array.each {|line_of_code| eval("map.#{line_of_code}") }
 
 Specifying Singulars and Plurals
 --------------------------------
