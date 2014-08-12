@@ -479,15 +479,15 @@ members of the collection, or requests for a new record. Takes a hash in the for
 {action=>method,...}, where method is :get/:post/:put/:delete, an array of any of those
 symbols, or :any.
 
-	map.outlaw_resources :headline, :provide=>:all, :collection=>{:rss=>:any}
-	  # Some of the routes generated:
-	  # rss_headlines_url         /headlines/rss     {:action=>"rss", :controller=>"headline"}
-	  # headline_rss_url          /headline/rss      {:action=>"rss", :controller=>"headline"}
-	map.outlaw_resources :message, :provide=>:all, :member=>{:flag=>[:get,:post]}
-	  # flag_message     GET,POST /messages/:id/flag {:action=>"flag", :controller=>"message"}
-	  # message_id_flag  GET,POST /message/:id/flag  {:action=>"flag", :controller=>"message"}
-	map.outlaw_resources :order, :provide=>:all, :new=>{:coupon=>:get}
-	  # coupon_new_order GET      /orders/new/coupon {:action=>"coupon", :controller=>"order"}
+  map.outlaw_resources :headline, :provide=>:all, :collection=>{:rss=>:any}
+    # Some of the routes generated:
+    # rss_headlines_url         /headlines/rss     {:action=>"rss", :controller=>"headline"}
+    # headline_rss_url          /headline/rss      {:action=>"rss", :controller=>"headline"}
+  map.outlaw_resources :message, :provide=>:all, :member=>{:flag=>[:get,:post]}
+    # flag_message     GET,POST /messages/:id/flag {:action=>"flag", :controller=>"message"}
+    # message_id_flag  GET,POST /message/:id/flag  {:action=>"flag", :controller=>"message"}
+  map.outlaw_resources :order, :provide=>:all, :new=>{:coupon=>:get}
+    # coupon_new_order GET      /orders/new/coupon {:action=>"coupon", :controller=>"order"}
       # order_new_coupon GET      /order/new/coupon  {:action=>"coupon", :controller=>"order"}
 
 ### Options: Controllers
