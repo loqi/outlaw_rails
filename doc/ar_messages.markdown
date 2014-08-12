@@ -22,15 +22,15 @@ will be rendered without that `^`, and if there are any `%?%` sequences present 
 in the literal (where `?` means any one character), those sequences will be replaced with
 data.
 
-	%U%  Replace with the humanized attribute name in all UPPERCASE
-	%L%  Replace with the humanized attribute name in all lowercase"
-	%=%  ...unmodified case (probably first letter uppercase and all others lowercase)
+  %U%  Replace with the humanized attribute name in all UPPERCASE
+  %L%  Replace with the humanized attribute name in all lowercase"
+  %=%  ...unmodified case (probably first letter uppercase and all others lowercase)
 
 So for example, the model code...
 
-	validates_format_of :screen_name, :with => /[^\?]/ ,
-	  :message => "^Invalid %L%. %=% fields may not contain a question mark."
+  validates_format_of :screen_name, :with => /[^\?]/ ,
+    :message => "^Invalid %L%. %=% fields may not contain a question mark."
 
 ...will present to the user as a validation message something like...
 
-	Invalid screen name. Screen name fields may not contain a question mark.
+  Invalid screen name. Screen name fields may not contain a question mark.

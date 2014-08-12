@@ -23,7 +23,7 @@ Help with Migrating a `config/routes.rb` script
 There's a Rake task, which will scan a `config/routes.rb` script, and suggest syntax
 to replace it.
 
-	rake outlaw:syntax:routes_rb
+  rake outlaw:syntax:routes_rb
 
 **This task does not write to your `routes.rb` file.**
 
@@ -37,7 +37,7 @@ applicable.
 
 example:
 
-	rake outlaw:syntax:routes_rb > temp/routes.rb
+  rake outlaw:syntax:routes_rb > temp/routes.rb
 
 This will create a new Ruby script file and fill it with the existing code of
 `config/routes.rb`, plus an extended comment footer explaining how to switch it to
@@ -52,7 +52,7 @@ There's an interactive task, which will accept user input of a Ruby expression, 
 will output suggested replacement code. The proposed expression is meant to provide all
 the same routes to support legacy code, plus a parallel set of routes for new code.
 
-	rake outlaw:syntax:interactive
+  rake outlaw:syntax:interactive
 
 To use it, type the command above, and when prompted, type a call expression of a
 `resource` or `resources` method call. Each time you give it a new line of code, it
