@@ -94,7 +94,7 @@ Examples:
 If the return value of this method is to be used in a message, but not at the start
 of a sentence, you'll probably want to us something like,
 
-	number_noun_phrase(...).downcase
+  number_noun_phrase(...).downcase
 
 **`number_noun_phrase(singular, plural, adjective='')`** => `String`  
 Returns an English-language phrase built from the singular or plural noun,
