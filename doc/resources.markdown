@@ -70,17 +70,17 @@ The Default Routes
 
 In the config/routes.rb script, this code...
 
-	map.outlaw_resources :blog
+  map.outlaw_resources :blog
 
 ...will give you these routes:
 
-	Route name     Sample URL path   GET    POST   PUT    DELETE
-	-------------- ----------------- ------ ------ ------ ------
-	blog_root      blog              index  create
-	blog_index     blog/index        index
-	blog_new       blog/new          new
-	blog_id        blog/5            show          update destroy
-	blog_id_edit   blog/5/edit       edit
+  Route name     Sample URL path   GET    POST   PUT    DELETE
+  -------------- ----------------- ------ ------ ------ ------
+  blog_root      blog              index  create
+  blog_index     blog/index        index
+  blog_new       blog/new          new
+  blog_id        blog/5            show          update destroy
+  blog_id_edit   blog/5/edit       edit
 
 These named routes implement REST in a way very similar to classic Rails. The names
 of the routes are more consistent, the URLs are less noisy, and there are two ways
@@ -110,16 +110,16 @@ RESTful Routes
 
 In the config/routes.rb script, this code...
 
-	map.outlaw_resources :blog, :provide=>:restful
+  map.outlaw_resources :blog, :provide=>:restful
 
 ...will give you these routes:
 
-	Route name     Sample URL path   GET    POST   PUT    DELETE
-	-------------- ----------------- ------ ------ ------ ------
-	blog_root      blog              index  create
-	blog_new       blog/new          new
-	blog_id        blog/5            show          update destroy
-	blog_id_edit   blog/5/edit       edit
+  Route name     Sample URL path   GET    POST   PUT    DELETE
+  -------------- ----------------- ------ ------ ------ ------
+  blog_root      blog              index  create
+  blog_new       blog/new          new
+  blog_id        blog/5            show          update destroy
+  blog_id_edit   blog/5/edit       edit
 
 This is the same as the default routes, without the "pretty index" route. This is
 functionally equivalent to the standard Rails RESTful routes, but with different
@@ -138,20 +138,20 @@ will generate a functionally identical set of routes, or a superset of the route
 
 Putting this code into your config/routes.rb script...
 
-	map.outlaw_resources :blog, :provide=>:classic, :controller=>:blogs	
+  map.outlaw_resources :blog, :provide=>:classic, :controller=>:blogs  
 
 ...has exactly the same effect as this code...
 
-	map.resources :blogs
+  map.resources :blogs
 
 ...which is to give you these routes:
 
-	Route name     Sample URL path   GET    POST   PUT    DELETE
-	-------------- ----------------- ------ ------ ------ ------
-	blogs          blogs             index  create
-	new_blog       blogs/new         new
-	blog           blogs/5           show          update destroy
-	edit_blog      blogs/5/edit      edit
+  Route name     Sample URL path   GET    POST   PUT    DELETE
+  -------------- ----------------- ------ ------ ------ ------
+  blogs          blogs             index  create
+  new_blog       blogs/new         new
+  blog           blogs/5           show          update destroy
+  edit_blog      blogs/5/edit      edit
 
 Outlaw routes assume an unmodified name ("blog" in this case) for everything except
 classic route names and paths. So if we haven't switched to singular controller names
@@ -163,26 +163,26 @@ The above example does nothing new, so let's change it.
 
 This code...
 
-	map.outlaw_resources :blog, :provide=>[:classic,:default], :controller=>:blogs
+  map.outlaw_resources :blog, :provide=>[:classic,:default], :controller=>:blogs
 
 ...maps these routes for us...
 
-	Route name      Sample URL path   GET    POST   PUT    DELETE
-	--------------- ----------------- ------ ------ ------ ------
-	blogs           blogs             index  create
-	new_blog        blogs/new         new
-	blog            blogs/5           show          update destroy
-	edit_blog       blogs/5/edit      edit
-	blog_root       blog              index  create
-	blog_index      blog/index        index
-	blog_new        blog/new          new
-	blog_id         blog/5            show          update destroy
-	blog_id_edit    blog/5/edit       edit
+  Route name      Sample URL path   GET    POST   PUT    DELETE
+  --------------- ----------------- ------ ------ ------ ------
+  blogs           blogs             index  create
+  new_blog        blogs/new         new
+  blog            blogs/5           show          update destroy
+  edit_blog       blogs/5/edit      edit
+  blog_root       blog              index  create
+  blog_index      blog/index        index
+  blog_new        blog/new          new
+  blog_id         blog/5            show          update destroy
+  blog_id_edit    blog/5/edit       edit
 
 This is the same set of routes as if we'd written...
 
-	map.resources :blogs
-	map.outlaw_resources :blog, :controller=>:blogs
+  map.resources :blogs
+  map.outlaw_resources :blog, :controller=>:blogs
 
 ...but it's usually better to consolidate the two lines into one. Although the
 above two-call example works perfectly fine, the one-call equivalent is preferred.
@@ -205,19 +205,19 @@ In addition to `classic` and `restful` routes, the third major class of Outlaw r
 
 This code in config/routes.rb...
 
-	map.outlaw_resources :news, :provide=>:pretty
+  map.outlaw_resources :news, :provide=>:pretty
 
 ...gives you these routes...
 
-	Route name         Sample URL path    GET    POST   PUT    DELETE
-	------------------ ------------------ ------ ------ ------ ------
-	news_index         news/index         index
-	news_new           news/new           new
-	news_create        news/create               create
-	news_id_show       news/228/show      show
-	news_id_edit       news/228/edit      edit
-	news_id_update     news/228/update                  update
-	news_id_destroy    news/228/destroy                        destroy
+  Route name         Sample URL path    GET    POST   PUT    DELETE
+  ------------------ ------------------ ------ ------ ------ ------
+  news_index         news/index         index
+  news_new           news/new           new
+  news_create        news/create               create
+  news_id_show       news/228/show      show
+  news_id_edit       news/228/edit      edit
+  news_id_update     news/228/update                  update
+  news_id_destroy    news/228/destroy                        destroy
 
 Here we get sparse routes, where each of the seven standard actions is served
 by its own URL and route name. This is the opposite of the REST philosophy, but
@@ -225,21 +225,21 @@ the URLs are more obvious and explicitly describe their function.
 
 If we want to be both RESTful and pretty, we could use this code...
 
-	map.outlaw_resources :news, :provide=>[:restful,:pretty]
+  map.outlaw_resources :news, :provide=>[:restful,:pretty]
 
 ...which maps these routes...
 
-	Route name        Sample URL path       GET    POST   PUT    DELETE
-	----------------- --------------------- ------ ------ ------ ------
-	news_root         news                  index  create
-	news_index        news/index            index
-	news_new          news/new              new
-	news_create       news/create                  create
-	news_id           news/228              show          update destroy
-	news_id_show      news/228/show         show
-	news_id_edit      news/228/edit         edit
-	news_id_update    news/228/update                     update
-	news_id_destroy   news/228/destroy                           destroy
+  Route name        Sample URL path       GET    POST   PUT    DELETE
+  ----------------- --------------------- ------ ------ ------ ------
+  news_root         news                  index  create
+  news_index        news/index            index
+  news_new          news/new              new
+  news_create       news/create                  create
+  news_id           news/228              show          update destroy
+  news_id_show      news/228/show         show
+  news_id_edit      news/228/edit         edit
+  news_id_update    news/228/update                     update
+  news_id_destroy   news/228/destroy                           destroy
 
 Notice there are now two ways to get to each of the actions, except for `new`
 and `edit`, since the RESTful and pretty forms of those two routes are identical.
@@ -249,48 +249,48 @@ Nested Resources
 
 In the config/routes.rb script, this code...
 
-	map.outlaw_resources :blog, :has_many=>:article
+  map.outlaw_resources :blog, :has_many=>:article
 
 ...or alternatively, this code...
 
-	map.outlaw_resources :blog do |blog|
-	  blog.outlaw_resources :article
-	end
+  map.outlaw_resources :blog do |blog|
+    blog.outlaw_resources :article
+  end
 
 ...will give you these routes:
 
-	Route name              Sample URL path        GET    POST   PUT    DELETE
-	----------------------- ---------------------- ------ ------ ------ ------
-	blog_root               blog                   index  create
-	blog_index              blog/index             index
-	blog_new                blog/new               new
-	blog_id                 blog/5                 show          update destroy
-	blog_id_edit            blog/5/edit            edit
-	blog_id_article_root    blog/5/article         index  create
-	blog_id_article_index   blog/5/article/index   index
-	blog_id_article_new     blog/5/article/new     new
-	blog_id_article_id      blog/5/article/12      show          update destroy
-	blog_id_article_id_edit blog/5/article/12/edit edit
+  Route name              Sample URL path        GET    POST   PUT    DELETE
+  ----------------------- ---------------------- ------ ------ ------ ------
+  blog_root               blog                   index  create
+  blog_index              blog/index             index
+  blog_new                blog/new               new
+  blog_id                 blog/5                 show          update destroy
+  blog_id_edit            blog/5/edit            edit
+  blog_id_article_root    blog/5/article         index  create
+  blog_id_article_index   blog/5/article/index   index
+  blog_id_article_new     blog/5/article/new     new
+  blog_id_article_id      blog/5/article/12      show          update destroy
+  blog_id_article_id_edit blog/5/article/12/edit edit
 
 Here are some sample Rails expressions that reference the above routes:
 
-	blog_index_path                                   # "/blog/index"
-	blog_new_path                                     # "/blog/new"
-	blog_id_path(blog_id)                             # "/blog/15"
-	blog_id_article_index_path(blog_id)               # "/blog/15/article/index"
-	blog_id_article_id_root_path(blog_id, article_id) # "/blog/15/article/203"
-	blog_id_article_id_edit_path(blog_id, article_id) # "/blog/15/article/203/edit"
+  blog_index_path                                   # "/blog/index"
+  blog_new_path                                     # "/blog/new"
+  blog_id_path(blog_id)                             # "/blog/15"
+  blog_id_article_index_path(blog_id)               # "/blog/15/article/index"
+  blog_id_article_id_root_path(blog_id, article_id) # "/blog/15/article/203"
+  blog_id_article_id_edit_path(blog_id, article_id) # "/blog/15/article/203/edit"
 
 Note that the Outlaw route names closely follow the URL paths, and don't mix
 the singular and plural forms of the same word unless asked to. Compare to
 the traditional Rails routes which would've done the same jobs:
 
-	blogs_path                                        # "/blogs"
-	new_blog_path                                     # "/blogs/new"
-	blog_path(blog_id)                                # "/blogs/15"
-	blog_articles_path(blog_id)                       # "/blogs/15/articles"
-	blog_article_path(blog_id, article_id)            # "/blogs/15/articles/203"
-	edit_blog_article_path(blog_id, article_id)       # "/blogs/15/articles/203/edit"
+  blogs_path                                        # "/blogs"
+  new_blog_path                                     # "/blogs/new"
+  blog_path(blog_id)                                # "/blogs/15"
+  blog_articles_path(blog_id)                       # "/blogs/15/articles"
+  blog_article_path(blog_id, article_id)            # "/blogs/15/articles/203"
+  edit_blog_article_path(blog_id, article_id)       # "/blogs/15/articles/203/edit"
 
 Maintaining Backward Compatibility
 ----------------------------------
@@ -303,49 +303,49 @@ uses the traditional route conventions, you can do so as described here. (See
 
 Suppose you have this line in your routes.rb script...
 
-	map.resources :users
+  map.resources :users
 
 ...and you change it to this...
 
-	map.outlaw_resources :user, :provide=>[:classic,:default], :controller=>:users
+  map.outlaw_resources :user, :provide=>[:classic,:default], :controller=>:users
 
 This should give you perfect compatibility with all your existing code, along with a
 bunch of new routes to begin playing with:
 
-	Route name      Sample URL path   GET    POST   PUT    DELETE
-	--------------- ----------------- ------ ------ ------ ------
-	users           users             index  create
-	new_user        users/new         new
-	user            users/1           show          update destroy
-	edit_user       users/1/edit      edit
-	
-	user_root       user              index  create
-	user_index      user/index        index
-	user_new        user/new          new
-	user_id         user/1            show          update destroy
-	user_id_edit    user/1/edit       edit
+  Route name      Sample URL path   GET    POST   PUT    DELETE
+  --------------- ----------------- ------ ------ ------ ------
+  users           users             index  create
+  new_user        users/new         new
+  user            users/1           show          update destroy
+  edit_user       users/1/edit      edit
+  
+  user_root       user              index  create
+  user_index      user/index        index
+  user_new        user/new          new
+  user_id         user/1            show          update destroy
+  user_id_edit    user/1/edit       edit
 
 One of your views might contain...
 
-	<%= link_to "My profile page", user_path(@user_id) %>
+  <%= link_to "My profile page", user_path(@user_id) %>
 
 ...which, if `@user_id` is 712, might generate the HTML code...
 
-	<a href="/users/712">My profile page</a>
+  <a href="/users/712">My profile page</a>
 
 Some other code, perhaps in the same file (even the same line a week later) might be...
 
-	<%= link_to "My profile page", user_id_path(@user_id) %>
+  <%= link_to "My profile page", user_id_path(@user_id) %>
 
 ...to generate the HTML...
 
-	<a href="/user/712">My profile page</a>
+  <a href="/user/712">My profile page</a>
 
 When a visitor clicks on either of these links, the browser will issue one of
 two possible HTTP requests:
 
-	either     GET /users/712
-	or         GET /user/712
+  either     GET /users/712
+  or         GET /user/712
 
 Since none of the route names or URLs overlap, and since both requests map to the
 `show` action of the `users` (or `user`\*) controller, you can intermingle
@@ -442,28 +442,28 @@ the standard actions.
 
 For example:
 
-	map.outlaw_resources :post, :only=>[:index,:show] do |post|
-	  post.outlaw_resources :comment, :except=>[:update,:destroy]
-	  end
+  map.outlaw_resources :post, :only=>[:index,:show] do |post|
+    post.outlaw_resources :comment, :except=>[:update,:destroy]
+    end
 
 ...will map these...
 
-	yes               post_root GET    /post                           PostController#index
-	no                          POST   /post                           PostController#create
-	yes              post_index GET    /post/index                     PostController#index
-	no                 post_new GET    /post/new                       PostController#new
-	yes                 post_id GET    /post/:id                       PostController#show
-	no                          PUT    /post/:id                       PostController#update
-	no                          DELETE /post/:id                       PostController#destroy
-	no             post_id_edit GET    /post/:id/edit                  PostController#edit
-	yes    post_id_comment_root GET    /post/:post_id/comment          CommentController#index
-	yes                         POST   /post/:post_id/comment          CommentController#create
-	yes   post_id_comment_index GET    /post/:post_id/comment/index    CommentController#index
-	yes     post_id_comment_new GET    /post/:post_id/comment/new      CommentController#new
-	yes      post_id_comment_id GET    /post/:post_id/comment/:id      CommentController#show
-	no                          PUT    /post/:post_id/comment/:id      CommentController#update
-	no                          DELETE /post/:post_id/comment/:id      CommentController#destroy
-	yes post_id_comment_id_edit GET    /post/:post_id/comment/:id/edit CommentController#edit
+  yes               post_root GET    /post                           PostController#index
+  no                          POST   /post                           PostController#create
+  yes              post_index GET    /post/index                     PostController#index
+  no                 post_new GET    /post/new                       PostController#new
+  yes                 post_id GET    /post/:id                       PostController#show
+  no                          PUT    /post/:id                       PostController#update
+  no                          DELETE /post/:id                       PostController#destroy
+  no             post_id_edit GET    /post/:id/edit                  PostController#edit
+  yes    post_id_comment_root GET    /post/:post_id/comment          CommentController#index
+  yes                         POST   /post/:post_id/comment          CommentController#create
+  yes   post_id_comment_index GET    /post/:post_id/comment/index    CommentController#index
+  yes     post_id_comment_new GET    /post/:post_id/comment/new      CommentController#new
+  yes      post_id_comment_id GET    /post/:post_id/comment/:id      CommentController#show
+  no                          PUT    /post/:post_id/comment/:id      CommentController#update
+  no                          DELETE /post/:post_id/comment/:id      CommentController#destroy
+  yes post_id_comment_id_edit GET    /post/:post_id/comment/:id/edit CommentController#edit
 
 Don't confuse these options with the `:provide` and `:omit` options. While the functionality
 of the two approaches often overlaps, they are not identical. `:only` and `:except` were
@@ -511,47 +511,47 @@ Define a prefix for all generated routes, usually ending in an underscore. Route
 are only used in the Ruby code, and are not usually seen by the application's users.
 Use this if you have named routes that may clash.
 
-	map.outlaw_resources :tag, :path_prefix=>'/book/:book_id', :name_prefix=>'book_'
-	map.outlaw_resources :tag, :path_prefix=>'/toy/:toy_id',   :name_prefix=>'toy_'
+  map.outlaw_resources :tag, :path_prefix=>'/book/:book_id', :name_prefix=>'book_'
+  map.outlaw_resources :tag, :path_prefix=>'/toy/:toy_id',   :name_prefix=>'toy_'
 
 You may also use :name_prefix to override the generic named routes in a nested resource,
 like so...
 
-	map.outlaw_resources :article do |a|
-	  a.outlaw_resources :comment, :name_prefix=>nil ; end
-	# Sampling of routes:
-	# article_root  /article
-	# article_id    /article/:id
-	# comment_root  /article/:article_id/comment      (compare article_id_comment_root)
-	# comment_id    /article/:article_id/comment/:id  (compare article_id_comment_id)
+  map.outlaw_resources :article do |a|
+    a.outlaw_resources :comment, :name_prefix=>nil ; end
+  # Sampling of routes:
+  # article_root  /article
+  # article_id    /article/:id
+  # comment_root  /article/:article_id/comment      (compare article_id_comment_root)
+  # comment_id    /article/:article_id/comment/:id  (compare article_id_comment_id)
 
 **`:outlaw_name_prefix`** `String`  
 **`:classic_name_prefix`** `String`  
 Same as `:name_prefix`, but is only applied to "outlaw" or "classic" routes. Where they apply,
 these more specific options take precedence over the more general `:name_prefix` option.
 
-	map.outlaw_resources :page, :provide=>:all, :classic_name_prefix=>'historical_'
-	# Sampling of routes:
-	# historical_pages /pages
-	# historical_page  /pages/:id
-	# page_root        /page
-	# page_id          /page/:id
+  map.outlaw_resources :page, :provide=>:all, :classic_name_prefix=>'historical_'
+  # Sampling of routes:
+  # historical_pages /pages
+  # historical_page  /pages/:id
+  # page_root        /page
+  # page_id          /page/:id
 
 **`:root_name_suffix`** `String` (inherited by inner code blocks)  
 Specify characters to be appended to the end of the outlaw collection route name.
 By default, this option is "`_root`".
 
-	map.outlaw_resources :account, :root_name_suffix=>nil
-	# Here the /account route is named "account" instead of "account_root"
-	map.outlaw_resources :account, :root_name_suffix=>nil, :provide=>:all
-	# Here there's a name clash, since both classic and outlaw routes are mapped.
+  map.outlaw_resources :account, :root_name_suffix=>nil
+  # Here the /account route is named "account" instead of "account_root"
+  map.outlaw_resources :account, :root_name_suffix=>nil, :provide=>:all
+  # Here there's a name clash, since both classic and outlaw routes are mapped.
 
 **`:id_root_name_suffix`** `String` (inherited by inner code blocks)  
 Specify characters to be appended to the end of the route name of the outlaw member route.
 By default, this option is blank.
 
-	map.outlaw_resources :account, :id_root_name_suffix=>'_root'
-	# Here the /account/:id route is named "account_id_root" instead of "account_id"
+  map.outlaw_resources :account, :id_root_name_suffix=>'_root'
+  # Here the /account/:id route is named "account_id_root" instead of "account_id"
 
 **`:id_name_suffix`** `String` (inherited by inner code blocks)  
 Specify characters to be inserted into the names of non-classic routes which reference an
@@ -561,8 +561,8 @@ While this suffix may sometimes be embedded in front of other suffixes, if you w
 underscore to set it off from the rest of a name, that underscore probably belongs on the
 left. By default, this option is "`_id`".
 
-	map.outlaw_resources :catalog, :id_name_suffix=>'_item'
-	# Makes routes with names like "catalog_item_destroy" instead of "catalog_id_destroy"
+  map.outlaw_resources :catalog, :id_name_suffix=>'_item'
+  # Makes routes with names like "catalog_item_destroy" instead of "catalog_id_destroy"
 
 ### Options: URL Paths
 
@@ -572,39 +572,39 @@ Specify a resource name to use in the URL paths.
 **`:path_names`** `Hash`  
 Specify names for the `new`, `edit`, or similar actions, as a hash in the form.
 
-	map.outlaw_resources :product, :as=>'producto', :path_names=>{:new=>'nuevo', :edit=>'editar'}
-	# path for new product:  /producto/nuevo
-	# path for edit product: /producto/editar
+  map.outlaw_resources :product, :as=>'producto', :path_names=>{:new=>'nuevo', :edit=>'editar'}
+  # path for new product:  /producto/nuevo
+  # path for edit product: /producto/editar
 
 You can also set default action names from an environment.
 
-	config.action_controller.resources_path_names = {:new=>'nuevo', :edit=>'editar'}
+  config.action_controller.resources_path_names = {:new=>'nuevo', :edit=>'editar'}
 
 **`:path_prefix`** `String`  
 Set a prefix to the routes' URL paths. These prefixes may contain dynamic fields
 (segments with leading colons).
 
-	map.outlaw_resources :comment, :provide=>:classic, :path_prefix=>'/articles/:article_id'
-	map.outlaw_resources :comment, :provide=>:outlaw, :path_prefix=>'/article/:article_id'
-	# These make a set of routes with paths including:
-	# /articles/:article_id/comments        (Classic comment collection)
-	# /articles/:article_id/comments/:id    (Classic comment member)
-	# /article/:article_id/comment/root     (Outlaw comment collection)
-	# /article/:article_id/comment/:id      (Outlaw comment member)
+  map.outlaw_resources :comment, :provide=>:classic, :path_prefix=>'/articles/:article_id'
+  map.outlaw_resources :comment, :provide=>:outlaw, :path_prefix=>'/article/:article_id'
+  # These make a set of routes with paths including:
+  # /articles/:article_id/comments        (Classic comment collection)
+  # /articles/:article_id/comments/:id    (Classic comment member)
+  # /article/:article_id/comment/root     (Outlaw comment collection)
+  # /article/:article_id/comment/:id      (Outlaw comment member)
 
 **`:outlaw_path_prefix`** `String`  
 **`:classic_path_prefix`** `String`  
 Same as `:path_prefix`, but is only applied to "outlaw" or "classic" routes. Where they apply,
 these more specific options take precedence over the more general `:path_prefix` option.
 
-	map.outlaw_resources :comment, :provide=>:all,
-	                     :classic_path_prefix=>'/articles/:article_id', # For classic routes
-	                     :path_prefix        =>'/article/:article_id'   # For all others
-	# Makes a set of routes with paths including:
-	# /articles/:article_id/comments        (Classic comment collection)
-	# /articles/:article_id/comments/:id    (Classic comment member)
-	# /article/:article_id/comment          (Outlaw comment collection)
-	# /article/:article_id/comment/:id      (Outlaw comment member)
+  map.outlaw_resources :comment, :provide=>:all,
+                       :classic_path_prefix=>'/articles/:article_id', # For classic routes
+                       :path_prefix        =>'/article/:article_id'   # For all others
+  # Makes a set of routes with paths including:
+  # /articles/:article_id/comments        (Classic comment collection)
+  # /articles/:article_id/comments/:id    (Classic comment member)
+  # /article/:article_id/comment          (Outlaw comment collection)
+  # /article/:article_id/comment/:id      (Outlaw comment member)
 
 ### Options: Nesting
 
@@ -616,14 +616,14 @@ Same as `:has_one`, but for nesting collection resources.
 
 You may directly specify the routing association with `:has_one` and `:has_many` like this...
 
-	map.outlaw_resources :note, :has_one=>:author, :has_many=>[:comment,:attachment]
+  map.outlaw_resources :note, :has_one=>:author, :has_many=>[:comment,:attachment]
 
 This is the same as...
 
-	map.outlaw_resources :note do |note|
-	  note.outlaw_resource  :author
-	  note.outlaw_resources :comment
-	  note.outlaw_resources :attachment ; end
+  map.outlaw_resources :note do |note|
+    note.outlaw_resource  :author
+    note.outlaw_resources :comment
+    note.outlaw_resources :attachment ; end
 
 **`:shallow`** `true` or **`false`** (inherited by inner code blocks)  
 If `true`, nested resources which reference a specific member (ie. those with an :id
@@ -632,19 +632,19 @@ parameter) will not use the parent path prefix or name prefix.
 The `:shallow` option is inherited by any nested code block.
 For example, `user`, `post` and `comment` all use shallow paths with these nested resources:
 
-	map.outlaw_resources :user, :shallow=>true do |user|
-	  user.outlaw_resources :post do |post|
-	    post.outlaw_resources :comment
-	  end ; end
-	# Makes a set of routes with paths including:
-	# user_id_post_index    GET /user/1/post/index
-	# post_id               GET /post/2
-	# post_id_comment_index GET /post/2/comment/index
-	# comment_id_edit       GET /comment/5/edit
+  map.outlaw_resources :user, :shallow=>true do |user|
+    user.outlaw_resources :post do |post|
+      post.outlaw_resources :comment
+    end ; end
+  # Makes a set of routes with paths including:
+  # user_id_post_index    GET /user/1/post/index
+  # post_id               GET /post/2
+  # post_id_comment_index GET /post/2/comment/index
+  # comment_id_edit       GET /comment/5/edit
 
 You may also use `:shallow` in combination with the `:has_one` and `:has_many` options.
 
-	map.outlaw_resources :user, :has_many=>{:post=>:comment}, :shallow=>true
+  map.outlaw_resources :user, :has_many=>{:post=>:comment}, :shallow=>true
 
 "Dry Mapping" Methods
 ---------------------
@@ -670,10 +670,10 @@ itself contain a dry-mapping method call, but instead should use ordinary calls 
 `outlaw_resources` or `outlaw_resource` or `resources` or `resource`. Otherwise,
 the inner calls' routes will not accrue to the outer call's array.
 
-	# In config/routes.rb , inside ActionController::Routing::Routes.draw do |map|
-	route_array = map.outlaw_resources_descriptor_array(:article) do |article|
-	                article.outlaw_resources(:thread) do |thread| # Not a dry-map!
-	                  thread.outlaw_resources(:comment) ; end ; end
+  # In config/routes.rb , inside ActionController::Routing::Routes.draw do |map|
+  route_array = map.outlaw_resources_descriptor_array(:article) do |article|
+                  article.outlaw_resources(:thread) do |thread| # Not a dry-map!
+                    thread.outlaw_resources(:comment) ; end ; end
 
 **`map_from_route_descriptor_array(route_descriptor_array)`**  
 This is not actually a dry mapping method. It maps a set of routes defined in
@@ -697,12 +697,12 @@ you'll probably need to tack on a "`map.`" sequence to the left side of each lin
 code. As with `outlaw_resource_descriptor_array`, dry-mapping methods in inner code
 blocks will not propagate to outer arrays; use ordinary resource methods for that.
 
-	# In config/routes.rb , inside ActionController::Routing::Routes.draw do |map|
-	ruby_array = map.outlaw_resources_ruby_code_array(:article) do |article|
-	               article.outlaw_resources(:thread) do |thread| # Not a dry-map!
-	                 thread.outlaw_resources(:comment) ; end ; end
-	# Do some stuff to the ruby_array
-	ruby_array.each {|line_of_code| eval("map.#{line_of_code}") }
+  # In config/routes.rb , inside ActionController::Routing::Routes.draw do |map|
+  ruby_array = map.outlaw_resources_ruby_code_array(:article) do |article|
+                 article.outlaw_resources(:thread) do |thread| # Not a dry-map!
+                   thread.outlaw_resources(:comment) ; end ; end
+  # Do some stuff to the ruby_array
+  ruby_array.each {|line_of_code| eval("map.#{line_of_code}") }
 
 Specifying Singulars and Plurals
 --------------------------------
@@ -728,15 +728,15 @@ Such an array follows the form `[singular,plural]`.
 
 For example...
 
-	map.outlaw_resources([:spumoni,:spumonae], :provide=>:all)
+  map.outlaw_resources([:spumoni,:spumonae], :provide=>:all)
 
 ...has the same effect as...
 
-	map.outlaw_resources(:spumoni, :plural=>:spumonae, :provide=>:all)
+  map.outlaw_resources(:spumoni, :plural=>:spumonae, :provide=>:all)
 
 This syntax is not just a convenience. This would be impossible without it...
 
-	map.outlaw_resources([:spumoni,:spumonae], [:fish,:fishies], :provide=>:all)
+  map.outlaw_resources([:spumoni,:spumonae], [:fish,:fishies], :provide=>:all)
 
 This syntax may also be passed to the `:has_one` and `:has_many` options. When doing so,
 there may be times when it's ambiguous whether you mean "two resource names which are to
@@ -744,13 +744,13 @@ be auto-pluralized by the inflector" or, "the singular and plural form of a sing
 name". This ambiguity only arrises when there are two elements of an array. In such cases,
 the two-element array is assumed to be two independent resources.
 
-	map.outlaw_resources :account, :provide=>:all, :has_many=>[:debit,:credit]
+  map.outlaw_resources :account, :provide=>:all, :has_many=>[:debit,:credit]
 
 If you meant two forms of the same resource name, you'll need to wrap the array within
 another array. Such a structure means "an array of resources containing a single resource,
 which is described by both the singular and plural form of its name." Like so:
 
-	map.outlaw_resources :user, :provide=>:all, :has_many=>[[:persona,:personae]]
+  map.outlaw_resources :user, :provide=>:all, :has_many=>[[:persona,:personae]]
 
 Route Mnemonics
 ---------------
@@ -771,15 +771,15 @@ groupings are called "composite" route mnemonics.
 
 Composite mnemonics:
 
-	Composite mnemonic  Equivalent to
-	------------------- -----------------------------------------
-	restful             collection, new, member, edit
-	pretty              index, new, create, show, edit, update, destroy
-	classic             classic_collection, classic_new, classic_member, classic_edit
-	default             restful, index
-	outlaw              restful, pretty
-	all                 restful, pretty, classic
-	none                (empty)
+  Composite mnemonic  Equivalent to
+  ------------------- -----------------------------------------
+  restful             collection, new, member, edit
+  pretty              index, new, create, show, edit, update, destroy
+  classic             classic_collection, classic_new, classic_member, classic_edit
+  default             restful, index
+  outlaw              restful, pretty
+  all                 restful, pretty, classic
+  none                (empty)
 
 ### Elemental mnemonics
 
@@ -792,27 +792,27 @@ refers to a set of two Rails routes--one for the GET verb and one for the POST v
 
 A few elemental mnemonics:
 
-	Elemental mnemonic    Typical name       Typical path
-	-------------------   ------------------ ----------------
-	collection            thing_root         /thing
-	index                 thing_index        /thing/index
-	show                  thing_id_show      /thing/12/show
-	classic_member        thing              /things/12
+  Elemental mnemonic    Typical name       Typical path
+  -------------------   ------------------ ----------------
+  collection            thing_root         /thing
+  index                 thing_index        /thing/index
+  show                  thing_id_show      /thing/12/show
+  classic_member        thing              /things/12
 
 Putting this all together, this code...
 
-	map.outlaw_resources :account, :provide=>[:default,:show]
+  map.outlaw_resources :account, :provide=>[:default,:show]
 
 ...will generate these routes:
 
-	Route name       Sample path        Action set           (elemental mnemonic)
-	---------------- ------------------ -------------------- -----------------------
-	account_root     /account           index create         (collection)
-	account_index    /account/index     index                (index)
-	account_new      /account/new       new                  (new)
-	account_id       /account/31        show update destroy  (member)
-	account_id_show  /account/31/show   show                 (show)
-	account_id_edit  /account/31/edit   edit                 (edit)
+  Route name       Sample path        Action set           (elemental mnemonic)
+  ---------------- ------------------ -------------------- -----------------------
+  account_root     /account           index create         (collection)
+  account_index    /account/index     index                (index)
+  account_new      /account/new       new                  (new)
+  account_id       /account/31        show update destroy  (member)
+  account_id_show  /account/31/show   show                 (show)
+  account_id_edit  /account/31/edit   edit                 (edit)
 
 In the example, we see the array `[:default, :show]`. The symbol `:default`
 represents `[:restful, :index]`. In turn, the symbol `:restful` represents
@@ -820,7 +820,7 @@ represents `[:restful, :index]`. In turn, the symbol `:restful` represents
 
 So our example means exactly the same thing as if we'd written...
 
-	map.outlaw_resources :account,
-	                     :provide=>[ :collection, :index, :new, :member, :show, :edit ]
+  map.outlaw_resources :account,
+                       :provide=>[ :collection, :index, :new, :member, :show, :edit ]
 
 This generates a total of nine routes under six names.
