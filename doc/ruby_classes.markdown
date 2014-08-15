@@ -1,14 +1,12 @@
 <!-- A "markdown viewer" will render this file as pretty-formatted text.
   One of your text editors or file browsers may already support it. -->
 
-Outlaw Ruby Class Extensions
-============================
+# Outlaw Ruby Class Extensions
 
 The outlaw_rails plugin adds some useful new methods to the standard Ruby classes
 and modules.
 
-Extensions to Ruby `Object` Class
----------------------------------
+## Extensions to Ruby `Object` Class
 
 ### Instance Methods
 
@@ -65,8 +63,7 @@ Returns `true` if the receiver is recognized as a valid Integer representation.
 Returns `true` if the receiver is recognized as a valid Integer representation.  
 `nil` and whitespace are considered invalid.
 
-Extensions to Ruby Numeric Class
---------------------------------
+## Extensions to Ruby Numeric Class
 
 ### Instance Methods
 
@@ -113,8 +110,7 @@ Examples:
   1.0.number_noun_phrase('thing','thingz','blue')   => "1.0 blue thingz"
   2.number_noun_phrase('thing','thingz','blue')     => "2 blue thingz"
 
-Extensions to Ruby String Class
--------------------------------
+## Extensions to Ruby String Class
 
 ### Instance methods
 
@@ -227,8 +223,7 @@ Example:
   exes_and_wyes = String.random_text(20,"xxxxY")
   # => something like "YxxYxxYxxxxxYxxxxxxx"
 
-Extensions to Ruby Hash Class
------------------------------
+## Extensions to Ruby Hash Class
 
 ### Instance methods
 
@@ -244,8 +239,7 @@ omitted, all elements of the receiver are potentially affected.
 **`nils_to!(new_value, *keys)`** => `Hash`  
 Same as `nils_to`, with the receiver overwritten by the return value.
 
-Extensions to Ruby Comparable module
-------------------------------------
+## Extensions to Ruby Comparable module
 
   Comparable#not_above(maximum)       returns self or maximum, whichever is "lesser"
   Comparable#not_below(minimum)       returns self or minimum, whichever is "greater"
