@@ -1,8 +1,7 @@
 <!-- A "markdown viewer" will render this file as pretty-formatted text.
   One of your text editors or file browsers may already support it. -->
 
-Customizable Active Record Validation Messages
-==============================================
+# Customizable Active Record Validation Messages
 
 The `full_messages` method has been overridden by custom code which provides a finer
 degree of control for Active Record validation error messages. Supports all the
