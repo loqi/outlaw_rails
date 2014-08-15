@@ -1,5 +1,4 @@
-Outlaw Resources
-================
+# Outlaw Resources
 
 Outlaw resources address some of the problems of the standard Ruby on Rails route
 generating tools. Routes are the means of mapping executable code to HTTP requests,
@@ -30,8 +29,7 @@ and instead be returned as an array of route descriptors, or of lines of Ruby so
 for you to programatically manipulate before mapping them into exactly the live routes
 you want.
 
-REST and Rails routing
-----------------------
+## REST and Rails routing
 
 REST (REpresentational State Transfer) is a potentially complex topic, but the basic
 idea for a Rails application is that the meaning of a given URL varies according
@@ -65,8 +63,7 @@ human-friendly URLs for a user-facing web page, you can choose **"pretty"** rout
 tend to be slightly more obvious in their meaning for a human reader. Of course you can
 combine all of these, to make overlapping functionality for the best features of each.
 
-The Default Routes
-------------------
+## The Default Routes
 
 In the config/routes.rb script, this code...
 
@@ -105,8 +102,7 @@ a user hovers over a link to a list all the blogs, it's slightly less confusing 
 something like, "click to go to example.com/blog/index" in the status bar, rather than,
 "click to go to example.com/blog". In any case, either path references the same Ruby code.
 
-RESTful Routes
---------------
+## RESTful Routes
 
 In the config/routes.rb script, this code...
 
@@ -125,8 +121,7 @@ This is the same as the default routes, without the "pretty index" route. This i
 functionally equivalent to the standard Rails RESTful routes, but with different
 route names and URL paths.
 
-Classic Routes
---------------
+## Classic Routes
 
 In order to continue to support existing Rails code, Outlaw Routes can generate classic
 Rails routes alongside the new-style routes. This allows you to begin using the Outlaw
@@ -197,8 +192,7 @@ mechanisms is also possible here, but the syntax might be different to accomplis
 There are tools provided to help translate classic Rails syntax to the Outlaw equivalent.
 See `doc/syntax_tools` for help with those tools.
 
-Pretty Routes
--------------
+## Pretty Routes
 
 In addition to `classic` and `restful` routes, the third major class of Outlaw routes is
 `pretty` routes. Pretty routes can be mapped alongside--or instead of--all the other routes.
@@ -244,8 +238,7 @@ If we want to be both RESTful and pretty, we could use this code...
 Notice there are now two ways to get to each of the actions, except for `new`
 and `edit`, since the RESTful and pretty forms of those two routes are identical.
 
-Nested Resources
-----------------
+## Nested Resources
 
 In the config/routes.rb script, this code...
 
@@ -292,8 +285,7 @@ the traditional Rails routes which would've done the same jobs:
   blog_article_path(blog_id, article_id)            # "/blogs/15/articles/203"
   edit_blog_article_path(blog_id, article_id)       # "/blogs/15/articles/203/edit"
 
-Maintaining Backward Compatibility
-----------------------------------
+## Maintaining Backward Compatibility
 
 If you're writing a new application from scratch, you need not be concerned with
 these code migration techniques. You can refrain from using any classic routes at all.
@@ -374,8 +366,7 @@ old routes you may have missed.
 
 -------------------------------------------------------------------------------
 
-Syntax reference manual
-=======================
+## Syntax reference manual
 
 The method calls follow these prototypes:
 
@@ -704,8 +695,7 @@ blocks will not propagate to outer arrays; use ordinary resource methods for tha
   # Do some stuff to the ruby_array
   ruby_array.each {|line_of_code| eval("map.#{line_of_code}") }
 
-Specifying Singulars and Plurals
---------------------------------
+## Specifying Singulars and Plurals
 
 The `outlaw_resources` and `outlaw_resource` methods take resource names as arguments.
 Normally, those resource arguments are used as-is, without attempts to pluralize or
@@ -752,8 +742,7 @@ which is described by both the singular and plural form of its name." Like so:
 
   map.outlaw_resources :user, :provide=>:all, :has_many=>[[:persona,:personae]]
 
-Route Mnemonics
----------------
+## Route Mnemonics
 
 Some of the options of `outlaw_resource` and `outlaw_resources` allow the calling code
 to refer to individual routes or classes of routes. Such options recognize a set of
