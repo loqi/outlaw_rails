@@ -71,13 +71,13 @@ In the config/routes.rb script, this code...
 
 ...will give you these routes:
 
-  Route name     Sample URL path   GET    POST   PUT    DELETE
-  -------------- ----------------- ------ ------ ------ ------
-  blog_root      blog              index  create
-  blog_index     blog/index        index
-  blog_new       blog/new          new
-  blog_id        blog/5            show          update destroy
-  blog_id_edit   blog/5/edit       edit
+Route name    | Sample URL path | GET   | POST   | PUT    | DELETE
+------------- | --------------- | ----- | ------ | ------ | ------
+blog_root     | blog            | index | create |        |
+blog_index    | blog/index      | index |        |        |
+blog_new      | blog/new        | new   |        |        |
+blog_id       | blog/5          | show  |        | update | destroy
+blog_id_edit  | blog/5/edit     | edit  |        |        |
 
 These named routes implement REST in a way very similar to classic Rails. The names
 of the routes are more consistent, the URLs are less noisy, and there are two ways
@@ -110,12 +110,12 @@ In the config/routes.rb script, this code...
 
 ...will give you these routes:
 
-  Route name     Sample URL path   GET    POST   PUT    DELETE
-  -------------- ----------------- ------ ------ ------ ------
-  blog_root      blog              index  create
-  blog_new       blog/new          new
-  blog_id        blog/5            show          update destroy
-  blog_id_edit   blog/5/edit       edit
+Route name   | Sample URL path |  GET   | POST   | PUT    | DELETE
+------------ | --------------- | ------ | ------ | ------ | ------
+blog_root    | blog            | index  | create |        |
+blog_new     | blog/new        | new    |        |        |
+blog_id      | blog/5          | show   |        | update | destroy
+blog_id_edit | blog/5/edit     | edit   |        |        |
 
 This is the same as the default routes, without the "pretty index" route. This is
 functionally equivalent to the standard Rails RESTful routes, but with different
@@ -133,7 +133,7 @@ will generate a functionally identical set of routes, or a superset of the route
 
 Putting this code into your config/routes.rb script...
 
-  map.outlaw_resources :blog, :provide=>:classic, :controller=>:blogs  
+  map.outlaw_resources :blog, :provide=>:classic, :controller=>:blogs
 
 ...has exactly the same effect as this code...
 
@@ -141,12 +141,12 @@ Putting this code into your config/routes.rb script...
 
 ...which is to give you these routes:
 
-  Route name     Sample URL path   GET    POST   PUT    DELETE
-  -------------- ----------------- ------ ------ ------ ------
-  blogs          blogs             index  create
-  new_blog       blogs/new         new
-  blog           blogs/5           show          update destroy
-  edit_blog      blogs/5/edit      edit
+Route name  | Sample URL path | GET   | POST   | PUT    | DELETE
+----------- | --------------- | ----- | ------ | ------ | ------
+blogs       | blogs           | index | create |        |
+new_blog    | blogs/new       | new   |        |        |
+blog        | blogs/5         | show  |        | update | destroy
+edit_blog   | blogs/5/edit    | edit  |        |        |
 
 Outlaw routes assume an unmodified name ("blog" in this case) for everything except
 classic route names and paths. So if we haven't switched to singular controller names
@@ -162,17 +162,17 @@ This code...
 
 ...maps these routes for us...
 
-  Route name      Sample URL path   GET    POST   PUT    DELETE
-  --------------- ----------------- ------ ------ ------ ------
-  blogs           blogs             index  create
-  new_blog        blogs/new         new
-  blog            blogs/5           show          update destroy
-  edit_blog       blogs/5/edit      edit
-  blog_root       blog              index  create
-  blog_index      blog/index        index
-  blog_new        blog/new          new
-  blog_id         blog/5            show          update destroy
-  blog_id_edit    blog/5/edit       edit
+Route name   | Sample URL path | GET   | POST   | PUT    | DELETE
+------------ | --------------- | ----- | ------ | ------ | ------
+blogs        | blogs           | index | create |        |
+new_blog     | blogs/new       | new   |        |        |
+blog         | blogs/5         | show  |        | update | destroy
+edit_blog    | blogs/5/edit    | edit  |        |        |
+blog_root    | blog            | index | create |        |
+blog_index   | blog/index      | index |        |        |
+blog_new     | blog/new        | new   |        |        |
+blog_id      | blog/5          | show  |        | update | destroy
+blog_id_edit | blog/5/edit     | edit  |        |        |
 
 This is the same set of routes as if we'd written...
 
@@ -203,15 +203,15 @@ This code in config/routes.rb...
 
 ...gives you these routes...
 
-  Route name         Sample URL path    GET    POST   PUT    DELETE
-  ------------------ ------------------ ------ ------ ------ ------
-  news_index         news/index         index
-  news_new           news/new           new
-  news_create        news/create               create
-  news_id_show       news/228/show      show
-  news_id_edit       news/228/edit      edit
-  news_id_update     news/228/update                  update
-  news_id_destroy    news/228/destroy                        destroy
+Route name      | Sample URL path  | GET   | POST   | PUT    | DELETE
+--------------- | ---------------- | ----- | ------ | ------ | ------
+news_index      | news/index       | index |        |        |
+news_new        | news/new         | new   |        |        |
+news_create     | news/create      |       | create |        |
+news_id_show    | news/228/show    | show  |        |        |
+news_id_edit    | news/228/edit    | edit  |        |        |
+news_id_update  | news/228/update  |       |        | update |
+news_id_destroy | news/228/destroy |       |        |        | destroy
 
 Here we get sparse routes, where each of the seven standard actions is served
 by its own URL and route name. This is the opposite of the REST philosophy, but
@@ -223,17 +223,17 @@ If we want to be both RESTful and pretty, we could use this code...
 
 ...which maps these routes...
 
-  Route name        Sample URL path       GET    POST   PUT    DELETE
-  ----------------- --------------------- ------ ------ ------ ------
-  news_root         news                  index  create
-  news_index        news/index            index
-  news_new          news/new              new
-  news_create       news/create                  create
-  news_id           news/228              show          update destroy
-  news_id_show      news/228/show         show
-  news_id_edit      news/228/edit         edit
-  news_id_update    news/228/update                     update
-  news_id_destroy   news/228/destroy                           destroy
+Route name      | Sample URL path  | GET   | POST   | PUT    | DELETE
+--------------- | ---------------- | ------| ------ | ------ | ------
+news_root       | news             | index | create |        |
+news_index      | news/index       | index |        |        |
+news_new        | news/new         | new   |        |        |
+news_create     | news/create      |       | create |        |
+news_id         | news/228         | show  |        | update | destroy
+news_id_show    | news/228/show    | show  |        |        |
+news_id_edit    | news/228/edit    | edit  |        |        |
+news_id_update  | news/228/update  |       |        | update |
+news_id_destroy | news/228/destroy |       |        |        | destroy
 
 Notice there are now two ways to get to each of the actions, except for `new`
 and `edit`, since the RESTful and pretty forms of those two routes are identical.
@@ -252,18 +252,18 @@ In the config/routes.rb script, this code...
 
 ...will give you these routes:
 
-  Route name              Sample URL path        GET    POST   PUT    DELETE
-  ----------------------- ---------------------- ------ ------ ------ ------
-  blog_root               blog                   index  create
-  blog_index              blog/index             index
-  blog_new                blog/new               new
-  blog_id                 blog/5                 show          update destroy
-  blog_id_edit            blog/5/edit            edit
-  blog_id_article_root    blog/5/article         index  create
-  blog_id_article_index   blog/5/article/index   index
-  blog_id_article_new     blog/5/article/new     new
-  blog_id_article_id      blog/5/article/12      show          update destroy
-  blog_id_article_id_edit blog/5/article/12/edit edit
+Route name              | Sample URL path        | GET   | POST   | PUT    | DELETE
+----------------------- | ---------------------- | ----- | ------ | ------ | ------
+blog_root               | blog                   | index | create |        |
+blog_index              | blog/index             | index |        |        |
+blog_new                | blog/new               | new   |        |        |
+blog_id                 | blog/5                 | show  |        | update | destroy
+blog_id_edit            | blog/5/edit            | edit  |        |        |
+blog_id_article_root    | blog/5/article         | index | create |        |
+blog_id_article_index   | blog/5/article/index   | index |        |        |
+blog_id_article_new     | blog/5/article/new     | new   |        |        |
+blog_id_article_id      | blog/5/article/12      | show  |        | update | destroy
+blog_id_article_id_edit | blog/5/article/12/edit | edit  |        |        |
 
 Here are some sample Rails expressions that reference the above routes:
 
@@ -304,18 +304,18 @@ Suppose you have this line in your routes.rb script...
 This should give you perfect compatibility with all your existing code, along with a
 bunch of new routes to begin playing with:
 
-  Route name      Sample URL path   GET    POST   PUT    DELETE
-  --------------- ----------------- ------ ------ ------ ------
-  users           users             index  create
-  new_user        users/new         new
-  user            users/1           show          update destroy
-  edit_user       users/1/edit      edit
-  
-  user_root       user              index  create
-  user_index      user/index        index
-  user_new        user/new          new
-  user_id         user/1            show          update destroy
-  user_id_edit    user/1/edit       edit
+Route name   | Sample URL path | GET   | POST   | PUT    | DELETE
+------------ | --------------- | ----- | ------ | ------ | ------
+users        | users           | index | create |        |
+new_user     | users/new       | new   |        |        |
+user         | users/1         | show  |        | update | destroy
+edit_user    | users/1/edit    | edit  |        |        |
+             |                 |       |        |        |
+user_root    | user            | index | create |        |
+user_index   | user/index      | index |        |        |
+user_new     | user/new        | new   |        |        |
+user_id      | user/1          | show  |        | update | destroy
+user_id_edit | user/1/edit     | edit  |        |        |
 
 One of your views might contain...
 
@@ -370,8 +370,8 @@ old routes you may have missed.
 
 The method calls follow these prototypes:
 
-**`outlaw_resources(resource_name, [resource_name,...], options, &code_block)`**  
-**`outlaw_resource(resource_name, [resource_name,...], options, &code_block)`**  
+**`outlaw_resources(resource_name, [resource_name,...], options, &code_block)`**
+**`outlaw_resource(resource_name, [resource_name,...], options, &code_block)`**
 
 These two methods are analogous to ActionController::Routing::RouteSet::Mapper#resource()
 and Mapper#resources() in Rails core. These are the two principal methods used in Outlaw
@@ -386,12 +386,12 @@ resource name, you should probably use a singular resource name, whether you're 
 
 ### Options: Singular and Plural
 
-**`:singular`** `String` or `Symbol`  
+**`:singular`** `String` or `Symbol`
 Specify the singular form of the name to be used in the generated routes. If this option is
 specified and `:plural` is not, the `resource_name` parameter is assumed to be a plural. Under
-normal circumstances, you'll never need this option.  
+normal circumstances, you'll never need this option.
 
-**`:plural`** `String` or `Symbol`  
+**`:plural`** `String` or `Symbol`
 Specify the plural form of the name to be used in the generated routes. If this option is
 specified and `:singular` is not, the `resource_name` parameter is assumed to be a singular.
 This option is handy if your inflector is disabled or incorrectly pluralizing your resource
@@ -410,12 +410,12 @@ the resource name is used as-is (probably singular).
 
 ### Options: Which Routes to Generate
 
-**`:provide`** `String`, `Symbol`, or `Array` (inherited by inner code blocks)  
+**`:provide`** `String`, `Symbol`, or `Array` (inherited by inner code blocks)
 Specifies which routes are to be mapped. If no `:provide` option is specified, it is implicitly
 set to the default set of routes (`:default`). This option receives a route mnemonic or an array
 of route mnemonics (see section discussing route mnemonics).
 
-**`:omit`** `String`, `Symbol`, or `Array` (inherited by inner code blocks)  
+**`:omit`** `String`, `Symbol`, or `Array` (inherited by inner code blocks)
 Specifies which routes are *not* to be mapped. This option receives a route mnemonic or an array
 of route mnemonics (see section discussing route mnemonics). The `:omit` option takes precedence
 over the `:provide` option.
@@ -425,8 +425,8 @@ option nominates a set of routes for inclusion, and the `:omit` option pares dow
 routes. A route is mapped only if it is listed in the `:provide` option (set to the `:default`
 mnemonic by default), *and is not* listed in the `:omit` option (set empty by default).
 
-**`:only`** `String`, `Symbol`, or `Array` (not inherited by inner code blocks)  
-**`:except`** `String`, `Symbol`, or `Array` (not inherited by inner code blocks)  
+**`:only`** `String`, `Symbol`, or `Array` (not inherited by inner code blocks)
+**`:except`** `String`, `Symbol`, or `Array` (not inherited by inner code blocks)
 Specify which of the seven default actions should be routed to. :only and :except may be set to
 :all, :none, an action name or a list of action names. By default, routes are generated for all
 the standard actions.
@@ -461,9 +461,9 @@ of the two approaches often overlaps, they are not identical. `:only` and `:exce
 introduced in Rails 2.3 and are supported for compatibility. The `:only` and `:expept` options
 receive action names, while `:provide` and `:omit` receive route mnemonics.
 
-**`:collection`** Hash  
-**`:member`** Hash  
-**`:new`** Hash  
+**`:collection`** Hash
+**`:member`** Hash
+**`:new`** Hash
 
 Add named routes for additional actions that operate on the collection as a whole, individual
 members of the collection, or requests for a new record. Takes a hash in the form of
@@ -479,25 +479,25 @@ symbols, or :any.
     # message_id_flag  GET,POST /message/:id/flag  {:action=>"flag", :controller=>"message"}
   map.outlaw_resources :order, :provide=>:all, :new=>{:coupon=>:get}
     # coupon_new_order GET      /orders/new/coupon {:action=>"coupon", :controller=>"order"}
-      # order_new_coupon GET      /order/new/coupon  {:action=>"coupon", :controller=>"order"}
+    # order_new_coupon GET      /order/new/coupon  {:action=>"coupon", :controller=>"order"}
 
 ### Options: Controllers
 
-**`:plural_controllers`** `true` or **`false`** (inherited by inner code blocks)  
+**`:plural_controllers`** `true` or **`false`** (inherited by inner code blocks)
 Setting to `true` causes the plural version of the resource name to be used as the controller
 name. Otherwise, the singular name is used. Note that by default, singular controller names
 are used, which is the opposite of the behavior of the `resources` and `resource` methods.
 
-**`:controller`** `String` or `Symbol`  
+**`:controller`** `String` or `Symbol`
 Specify a controller name for the routes' destination bindings.
 
-**`:namespace`** `String` (inherited by inner code blocks)  
+**`:namespace`** `String` (inherited by inner code blocks)
 Specify a string to be appended to the front of the controller names, which is probably a
 directory name with trailing slash. Inherited by inner code blocks.
 
 ### Options: Route Names
 
-**`:name_prefix`** `String` or `Symbol`  
+**`:name_prefix`** `String` or `Symbol`
 Define a prefix for all generated routes, usually ending in an underscore. Route names
 are only used in the Ruby code, and are not usually seen by the application's users.
 Use this if you have named routes that may clash.
@@ -516,8 +516,8 @@ like so...
   # comment_root  /article/:article_id/comment      (compare article_id_comment_root)
   # comment_id    /article/:article_id/comment/:id  (compare article_id_comment_id)
 
-**`:outlaw_name_prefix`** `String`  
-**`:classic_name_prefix`** `String`  
+**`:outlaw_name_prefix`** `String`
+**`:classic_name_prefix`** `String`
 Same as `:name_prefix`, but is only applied to "outlaw" or "classic" routes. Where they apply,
 these more specific options take precedence over the more general `:name_prefix` option.
 
@@ -528,7 +528,7 @@ these more specific options take precedence over the more general `:name_prefix`
   # page_root        /page
   # page_id          /page/:id
 
-**`:root_name_suffix`** `String` (inherited by inner code blocks)  
+**`:root_name_suffix`** `String` (inherited by inner code blocks)
 Specify characters to be appended to the end of the outlaw collection route name.
 By default, this option is "`_root`".
 
@@ -537,14 +537,14 @@ By default, this option is "`_root`".
   map.outlaw_resources :account, :root_name_suffix=>nil, :provide=>:all
   # Here there's a name clash, since both classic and outlaw routes are mapped.
 
-**`:id_root_name_suffix`** `String` (inherited by inner code blocks)  
+**`:id_root_name_suffix`** `String` (inherited by inner code blocks)
 Specify characters to be appended to the end of the route name of the outlaw member route.
 By default, this option is blank.
 
   map.outlaw_resources :account, :id_root_name_suffix=>'_root'
   # Here the /account/:id route is named "account_id_root" instead of "account_id"
 
-**`:id_name_suffix`** `String` (inherited by inner code blocks)  
+**`:id_name_suffix`** `String` (inherited by inner code blocks)
 Specify characters to be inserted into the names of non-classic routes which reference an
 individual member resource. That is, the routes referenced by mnemonics `:member`, `:show`,
 `:edit`, `:update`, and `:destroy`, will have this string embedded into their route names.
@@ -557,10 +557,10 @@ left. By default, this option is "`_id`".
 
 ### Options: URL Paths
 
-**`:as`** `String` or `Symbol`  
+**`:as`** `String` or `Symbol`
 Specify a resource name to use in the URL paths.
 
-**`:path_names`** `Hash`  
+**`:path_names`** `Hash`
 Specify names for the `new`, `edit`, or similar actions, as a hash in the form.
 
   map.outlaw_resources :product, :as=>'producto', :path_names=>{:new=>'nuevo', :edit=>'editar'}
@@ -571,7 +571,7 @@ You can also set default action names from an environment.
 
   config.action_controller.resources_path_names = {:new=>'nuevo', :edit=>'editar'}
 
-**`:path_prefix`** `String`  
+**`:path_prefix`** `String`
 Set a prefix to the routes' URL paths. These prefixes may contain dynamic fields
 (segments with leading colons).
 
@@ -583,8 +583,8 @@ Set a prefix to the routes' URL paths. These prefixes may contain dynamic fields
   # /article/:article_id/comment/root     (Outlaw comment collection)
   # /article/:article_id/comment/:id      (Outlaw comment member)
 
-**`:outlaw_path_prefix`** `String`  
-**`:classic_path_prefix`** `String`  
+**`:outlaw_path_prefix`** `String`
+**`:classic_path_prefix`** `String`
 Same as `:path_prefix`, but is only applied to "outlaw" or "classic" routes. Where they apply,
 these more specific options take precedence over the more general `:path_prefix` option.
 
@@ -599,10 +599,10 @@ these more specific options take precedence over the more general `:path_prefix`
 
 ### Options: Nesting
 
-**`:has_one`**  `Symbol`, `String`, or `Array`  
+**`:has_one`**  `Symbol`, `String`, or `Array`
 Specify nested resources, this is a shorthand for mapping singleton resources beneath the current.
 
-**`:has_many`** `Symbol`, `String`, or `Array`  
+**`:has_many`** `Symbol`, `String`, or `Array`
 Same as `:has_one`, but for nesting collection resources.
 
 You may directly specify the routing association with `:has_one` and `:has_many` like this...
@@ -616,7 +616,7 @@ This is the same as...
     note.outlaw_resources :comment
     note.outlaw_resources :attachment ; end
 
-**`:shallow`** `true` or **`false`** (inherited by inner code blocks)  
+**`:shallow`** `true` or **`false`** (inherited by inner code blocks)
 If `true`, nested resources which reference a specific member (ie. those with an :id
 parameter) will not use the parent path prefix or name prefix.
 
@@ -644,8 +644,8 @@ There may be times when, instead of mapping a set of routes to the Rails routing
 you'd like to return an array of descriptions of those routes. Perhaps you'd like an
 additional level of control not offered by any of the built-in options.
 
-**`outlaw_resource_descriptor_array(...)`** => Array  
-**`outlaw_resources_descriptor_array(...)`** => Array  
+**`outlaw_resource_descriptor_array(...)`** => Array
+**`outlaw_resources_descriptor_array(...)`** => Array
 Take the same arguments and optional code block as `outlaw_resource()`, and
 `outlaw_resources()`, but instead of mapping the requested routes, an array representing
 those routes is returned. This array can then be programatically manipulated, and
@@ -666,7 +666,7 @@ the inner calls' routes will not accrue to the outer call's array.
                   article.outlaw_resources(:thread) do |thread| # Not a dry-map!
                     thread.outlaw_resources(:comment) ; end ; end
 
-**`map_from_route_descriptor_array(route_descriptor_array)`**  
+**`map_from_route_descriptor_array(route_descriptor_array)`**
 This is not actually a dry mapping method. It maps a set of routes defined in
 `route_descriptor_array`, in sequence from first to last. The array is assumed to be
 of the format returned by the dry mapper methods `outlaw_resource_descriptor_array`
@@ -676,8 +676,8 @@ that array before passing it to this method to actually map the routes. In this 
 your code can go beyond what is possible using the method options, and directly modify
 the route descriptors to your liking.
 
-**`outlaw_resource_ruby_code_array(...)`** => Array  
-**`outlaw_resources_ruby_code_array(...)`** => Array  
+**`outlaw_resource_ruby_code_array(...)`** => Array
+**`outlaw_resources_ruby_code_array(...)`** => Array
 Like `outlaw_resources_descriptor_array`, but instead of returning an array of route
 descriptor hashes, it returns an array of Strings containing a line of Ruby code in
 the form, "`named_route("name","path",{option_key=>option_value,...})`" or
@@ -760,15 +760,15 @@ groupings are called "composite" route mnemonics.
 
 Composite mnemonics:
 
-  Composite mnemonic  Equivalent to
-  ------------------- -----------------------------------------
-  restful             collection, new, member, edit
-  pretty              index, new, create, show, edit, update, destroy
-  classic             classic_collection, classic_new, classic_member, classic_edit
-  default             restful, index
-  outlaw              restful, pretty
-  all                 restful, pretty, classic
-  none                (empty)
+Composite mnemonic | Equivalent to
+------------------ | -----------------------------------------
+restful            | collection, new, member, edit
+pretty             | index, new, create, show, edit, update, destroy
+classic            | classic_collection, classic_new, classic_member, classic_edit
+default            | restful, index
+outlaw             | restful, pretty
+all                | restful, pretty, classic
+none               | (empty)
 
 ### Elemental mnemonics
 
@@ -781,12 +781,12 @@ refers to a set of two Rails routes--one for the GET verb and one for the POST v
 
 A few elemental mnemonics:
 
-  Elemental mnemonic    Typical name       Typical path
-  -------------------   ------------------ ----------------
-  collection            thing_root         /thing
-  index                 thing_index        /thing/index
-  show                  thing_id_show      /thing/12/show
-  classic_member        thing              /things/12
+Elemental mnemonic | Typical name  | Typical path
+------------------ | ------------- | --------------
+collection         | thing_root    | /thing
+index              | thing_index   | /thing/index
+show               | thing_id_show | /thing/12/show
+classic_member     | thing         | /things/12
 
 Putting this all together, this code...
 
@@ -794,14 +794,14 @@ Putting this all together, this code...
 
 ...will generate these routes:
 
-  Route name       Sample path        Action set           (elemental mnemonic)
-  ---------------- ------------------ -------------------- -----------------------
-  account_root     /account           index create         (collection)
-  account_index    /account/index     index                (index)
-  account_new      /account/new       new                  (new)
-  account_id       /account/31        show update destroy  (member)
-  account_id_show  /account/31/show   show                 (show)
-  account_id_edit  /account/31/edit   edit                 (edit)
+Route name      | Sample path      | Action set          | (elemental mnemonic)
+--------------- | ---------------- | ------------------- | -----------------------
+account_root    | /account         | index create        | (collection)
+account_index   | /account/index   | index               | (index)
+account_new     | /account/new     | new                 | (new)
+account_id      | /account/31      | show update destroy | (member)
+account_id_show | /account/31/show | show                | (show)
+account_id_edit | /account/31/edit | edit                | (edit)
 
 In the example, we see the array `[:default, :show]`. The symbol `:default`
 represents `[:restful, :index]`. In turn, the symbol `:restful` represents

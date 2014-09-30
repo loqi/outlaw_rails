@@ -1,5 +1,4 @@
-Syntax migration tools
-======================
+# Syntax migration tools
 
 Though there's no requirement to change anything about your `config/routes.rb`
 script, or to stop using the `resources` methods that come with Rails, if
@@ -17,8 +16,7 @@ For very detailed documentation on Outlaw routes, see `doc/resources`
 
 Here are some Rake tasks to help you get started.
 
-Help with Migrating a `config/routes.rb` script
------------------------------------------------
+## Help with Migrating a `config/routes.rb` script
 
 There's a Rake task, which will scan a `config/routes.rb` script, and suggest syntax
 to replace it.
@@ -45,8 +43,7 @@ Outlaw resources.
 
 A human is expected to make the actual edits to the code.
 
-Translating individual lines of code
-------------------------------------
+## Translating individual lines of code
 
 There's an interactive task, which will accept user input of a Ruby expression, and
 will output suggested replacement code. The proposed expression is meant to provide all
