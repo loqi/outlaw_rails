@@ -319,20 +319,24 @@ user_id_edit | user/1/edit     | edit  |        |        |
 
 One of your views might contain...
 
+```
   <%= link_to "My profile page", user_path(@user_id) %>
-
+```
 ...which, if `@user_id` is 712, might generate the HTML code...
 
+``` 
   <a href="/users/712">My profile page</a>
+```
 
 Some other code, perhaps in the same file (even the same line a week later) might be...
 
+```
   <%= link_to "My profile page", user_id_path(@user_id) %>
-
+```
 ...to generate the HTML...
-
+```
   <a href="/user/712">My profile page</a>
-
+```
 When a visitor clicks on either of these links, the browser will issue one of
 two possible HTTP requests:
 
