@@ -10,7 +10,7 @@ class String
     end
 
   def bardoc
-    replace(self.split("\n").map {|lin| lin.sub(/\s*\|/,'') }.join("\n")) ; end
+    replace(self.split("\n").map {|lin| lin.sub(/^\s*\|/,'') }.join("\n")) ; end
   alias bardoc! bardoc
   def self.bardoc(raw)
     raw.lstrip.rstrip.bardoc

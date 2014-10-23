@@ -348,6 +348,13 @@ describe String do
       |
       eos
     s.should == "This is a text of the emergent\nbardoc system.\n  with silver bells and cockle shells\n  and pretty maids, all in a row.\n\nThat is all.\n"
+    s = <<-eos.bardoc
+|
+|This is another text  | of |
+      |  | the | bardoc|literal||parsing.
+      |
+eos
+    s.should == "\nThis is another text  | of |\n  | the | bardoc|literal||parsing.\n"
     s = <<-end.bardoc
       end
     s.should == ""
